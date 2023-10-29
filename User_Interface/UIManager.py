@@ -39,8 +39,10 @@ def run():
 
     while run:
         for event in pygame.event.get():
-            if event == pygame.QUIT:
+            if event.type == pygame.QUIT:
                 run = False
+        pygame.display.update()
+        clock.tick(FPS)
 
     pygame.quit()
 
