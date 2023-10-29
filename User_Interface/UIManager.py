@@ -1,6 +1,14 @@
 # UIManager
 # Responsible for managing and coordination the game’s user interface. Interacts with other UI components for rendering and displaying the game information. 
 # This is where we will have all the pygame components, along with the other UI classes
+import pygame
+import GameboardView
+WIDTH, HEIGHT = 1280, 720
+
+pygame.init()
+FPS = 60
+WIN = pygame.display.set_mode((WIDTH,HEIGHT))
+pygame.display.set_caption("Cloneopoly")
 
 # Initial Board Rendering 
 # Collaborates with the GameBoardView to render the Initial Board State. 
@@ -19,3 +27,21 @@
 # Pre-Condition: \@requires self.is_layered_menu() == True 
 # Post-Condition: \@ensures self.ui.display_menu() 
 # Method Signature: def form_menu(self) -> None: 
+
+def run():
+    """
+        The Main Game Loop
+    """
+    run = True
+    clock = pygame.time.Clock
+    gameboard_view = GameboardView.GameboardView(WIN)
+    board_setup = gameboard_view.setup_board()
+
+    while run:
+        clock.tick(FPS)
+
+        for event in pygame.event.get():
+            if event == pygame.QUIT:
+                run = False
+
+    pygame.quit()
