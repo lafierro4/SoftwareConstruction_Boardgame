@@ -33,7 +33,7 @@ def run():
         The Main Game Loop
     """
     run = True
-    clock = pygame.time.Clock
+    clock = pygame.time.Clock()
     gameboard_view = GameboardView(WIN)
     board_setup = gameboard_view.setup_board()
 
