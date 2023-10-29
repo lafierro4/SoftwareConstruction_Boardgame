@@ -35,5 +35,5 @@ class Player:
             self.funds -= amount
         else:
             exit
-    def update_propert(self, property_obj):
+    def update_property(self, property_obj):
         self.properties.append(property_obj)
