@@ -16,3 +16,24 @@
 
 # Update Property
 # Not in the SDD but we should have a method that updates the property of the player
+
+class Player:
+    def __init__(self, name, token):
+        self.name = name
+        self.token = token
+        self.funds = 0
+        self.properties = []
+
+    def increase_funds(self, amount):
+        if amount >= 0:
+            self.funds += amount
+        else:
+            exit
+    
+    def decrease_funds(self, amount):
+        if amount >= 0:
+            self.funds -= amount
+        else:
+            exit
+    def update_propert(self, property_obj):
+        self.properties.append(property_obj)
