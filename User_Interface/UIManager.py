@@ -2,7 +2,7 @@
 # Responsible for managing and coordination the game’s user interface. Interacts with other UI components for rendering and displaying the game information. 
 # This is where we will have all the pygame components, along with the other UI classes
 import pygame
-import GameboardView
+from  User_Interface.GameboardView import GameboardView
 WIDTH, HEIGHT = 1280, 720
 
 pygame.init()
@@ -34,14 +34,14 @@ def run():
     """
     run = True
     clock = pygame.time.Clock
-    gameboard_view = GameboardView.GameboardView(WIN)
+    gameboard_view = GameboardView(WIN)
     board_setup = gameboard_view.setup_board()
 
     while run:
-        clock.tick(FPS)
-
         for event in pygame.event.get():
             if event == pygame.QUIT:
                 run = False
 
     pygame.quit()
+
+run()

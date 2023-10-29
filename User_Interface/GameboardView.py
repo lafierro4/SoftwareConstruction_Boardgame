@@ -3,7 +3,7 @@
 # elements related to the game board. Handles user interactions with the game board, such as property selections and purchases. 
 import pygame
 WIDTH, HEIGHT = 1280, 720
-import Game_Engine.GameboardManager
+from Game_Engine.GameboardManager import Gameboard
 
 
 def hex_to_rgb(hex_code):
@@ -14,7 +14,7 @@ def hex_to_rgb(hex_code):
 class GameboardView():
     def __init__(self,win,):
         self.WIN = win
-        self.gameboard = Game_Engine.GameboardManager.Gameboard()
+        self.gameboard = Gameboard()
         self.property_size = 40
         self.properties = self.gameboard.properties
 

@@ -1,6 +1,6 @@
 #This is the first file
 # Represent the Monopoly game board with properties, squares, and rules.
-import Property
+from Game_Engine.Property import Property
 
 #  Initialize Gameboard
 # Declares all the rules for the game, initializes all the board tiles, and sets up the properties so a game of Cloneopoly may be played. 
@@ -8,7 +8,7 @@ import Property
 #  Post-Condition: \@ensures len(self.properties) > 40 and self.dice.seed is not None and (\forall player in self.players: player.position == 0) 
 #  Method Signature: def initialize(self) -> None: 
 
-def set_properties() -> list[Property.Property]:
+def set_properties() -> list[Property]:
     properties = [    
     Property("Mediterranean Meals", "#a37759", 60, [2, 10, 30, 90, 160, 250]),
     Property("Baltic Breezeway", "#a37759", 60, [4, 20, 60, 180, 320, 450]),
