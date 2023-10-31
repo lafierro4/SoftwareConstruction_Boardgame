@@ -15,7 +15,13 @@ pygame.init()
 title_font = pygame.font.SysFont("consolas", 75)
 button_font =  pygame.font.SysFont("consolas", 50)
 
-def menu(SCREEN: pygame.Surface,FPS) -> int:
+def main_menu(SCREEN: pygame.Surface,FPS) -> int:
+    """
+        The Main Menu Screen.
+        Gives the User Options at the start up of game.\n
+        Returns Code based on user's choice
+    """
+    # Sets the Background Image and Sound, Sound loops until Screen transision.
     bg_image = pygame.transform.scale(pygame.image.load("assets\images\\title_bg.png"), (SCREEN.get_size()[0], SCREEN.get_size()[1]))
     bg_image.set_alpha(128)
     SCREEN.blit(bg_image,(0,0))
@@ -23,7 +29,7 @@ def menu(SCREEN: pygame.Surface,FPS) -> int:
     pygame.mixer.music.load("assets\sounds\\title_bg_music.mp3")
     pygame.mixer.music.play(loops= -1)
 
-
+    # Screen Game Loop, Renders Buttons and Checks if the user clicks them
     run = True
     clock = pygame.time.Clock()
     while run:

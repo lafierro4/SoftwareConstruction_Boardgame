@@ -43,7 +43,7 @@ def main_loop():
     """
     run = True
     clock = pygame.time.Clock()
-    return_status = main_menu()
+    return_status = title_menu()
     while run:
         if return_status == 0 or return_status == 3:
              run = False
@@ -61,7 +61,11 @@ def main_loop():
 
     pygame.quit()
 
-def main_menu():
+def title_menu():
+    """
+        Starts the Main Menu Screen from MenuView \n
+        Returns a status code with the user's choice
+    """
     menu_choice = mv.menu(SCREEN,FPS)
     return menu_choice
 
