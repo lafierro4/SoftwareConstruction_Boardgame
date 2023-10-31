@@ -37,3 +37,13 @@ class Player:
             exit
     def update_property(self, property_obj):
         self.properties.append(property_obj)
+
+    def move_player(self, win, game_board, pos_x):
+        for x in range(100):                   #animate 100 frames
+            win.blit(game_board.board_surface, (0,0)) #erase board
+            position = self.token.get_rect()    #gets player rectangle
+            pos_x += game_board.property_size
+            position.move_ip(pos_x,0)
+            win.blit(self.token, position) #redraws player token
+            return pos_x
+        
