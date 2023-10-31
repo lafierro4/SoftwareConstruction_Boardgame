@@ -3,7 +3,7 @@
 # This is where we will have all the pygame components, along with the other UI classes
 
 # TO DO: Agree on short cut names for imports
-import pygame
+import pygame, os
 from Game_Engine.GameboardManager import Gameboard
 from User_Interface.GameboardView import GameboardView
 from Game_Engine.Player import Player
@@ -86,7 +86,7 @@ def initialize_player(SCREEN, pos_x, name, image):
 def initialize_gameboard():
     # Initialize the board
     pos_x = 0
-    player_one = initialize_player(SCREEN, pos_x, "michel", "assets/images/car.png")
+    player_one = initialize_player(SCREEN, pos_x, "michel", os.path.join("assets/images/car.png"))
     run = True
     clock = pygame.time.Clock()
     SCREEN.fill("black")

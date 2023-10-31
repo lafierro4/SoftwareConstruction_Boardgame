@@ -2,7 +2,7 @@
 # Manages the various menu and options within the game, including the main menu, settings, and in-game menu.
 # It allows players to navigate and make selections within the game. 
 
-import pygame
+import pygame, os
 from User_Interface.Button import Button
 pygame.init()
 
@@ -22,11 +22,11 @@ def main_menu(SCREEN: pygame.Surface,FPS) -> int:
         Returns Code based on user's choice
     """
     # Sets the Background Image and Sound, Sound loops until Screen transision.
-    bg_image = pygame.transform.scale(pygame.image.load("assets\images\\title_bg.png"), (SCREEN.get_size()[0], SCREEN.get_size()[1]))
+    bg_image = pygame.transform.scale(pygame.image.load(os.path.join("assets\images\\title_bg.png")), (SCREEN.get_size()[0], SCREEN.get_size()[1]))
     bg_image.set_alpha(128)
     SCREEN.blit(bg_image,(0,0))
     pygame.mixer.init()
-    pygame.mixer.music.load("assets\sounds\\title_bg_music.mp3")
+    pygame.mixer.music.load(os.path.join("assets\sounds\\title_bg_music.mp3"))
     pygame.mixer.music.play(loops= -1)
 
     # Screen Game Loop, Renders Buttons and Checks if the user clicks them
