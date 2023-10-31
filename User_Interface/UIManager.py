@@ -4,6 +4,7 @@
 import pygame
 from  User_Interface.GameboardView import GameboardView
 WIDTH, HEIGHT = 1280, 720
+from Game_Engine.Player import Player
 
 pygame.init()
 FPS = 60
@@ -28,6 +29,16 @@ pygame.display.set_caption("Cloneopoly")
 # Post-Condition: \@ensures self.ui.display_menu() 
 # Method Signature: def form_menu(self) -> None: 
 
+def initialize_player(WIN, pos_x, name, image):
+    # create a surface object, image is drawn on it.
+    token = pygame.image.load(image).convert_alpha()
+    # Scale the image
+    token = pygame.transform.scale(token, (40,40))
+    # Draw initial position of player on board
+    WIN.blit(token, (pos_x, 0))
+    player_one = Player(name, token)
+    return player_one
+
 def run():
     """
         The Main Game Loop
@@ -35,12 +46,19 @@ def run():
     run = True
     clock = pygame.time.Clock()
     gameboard_view = GameboardView(WIN)
-    board_setup = gameboard_view.setup_board()
+    gameboard_view.setup_board()
+    
+    pos_x = 0
+    player_one = initialize_player(WIN,pos_x,"michel","assets/car.png")
 
     while run:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+            # Moves player with each click
+                if event.button == 1: 
+                    pos_x = player_one.move_player(WIN,gameboard_view, pos_x)
         pygame.display.update()
         clock.tick(FPS)
 
