@@ -26,3 +26,16 @@
 # Pre-Condition: @requires player is not None 
 # Post-Condition: @ensures (\forall property in \old(player.properties): property.owner != player) 
 # Method signature: def handle_bankruptcy (self, player: Player) -> None: 
+
+from Game_Engine.Player import Player
+from Game_Engine.Property import Property
+
+class Bank:
+    def purchase_property(self, player: Player, property: Property) -> None:
+        if player.balance >= property.price:
+            player.decrease_funds(property.price)
+    
+
+    def collect_rent(self, player: Player, property: Property) -> None:
+        if player is not None & property is not None:
+            player.decrease_funds(property.calculate_rent())
