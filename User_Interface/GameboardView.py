@@ -19,26 +19,73 @@ class GameboardView:
     ):
         self.WIN = win
         self.gameboard = Gameboard()
-        self.property_size = 80
+        self.property_size = 50
         self.squares = self.gameboard._board
         self.board_surface = pygame.Surface((WIDTH, HEIGHT))
+        self.border_width = 2
 
     def setup_board(self):
         self.board_surface.fill((255, 255, 255))
-        for row in range(8):
-            for col in range(8):
-                x = col * self.property_size
-                y = row * self.property_size
-
-                if row == 0 or row == 7 or col == 0 or col == 7:
-                    # Draw properties on the sides
-                    square_index = (row * 10 + col) % len(self.squares)
-                    pygame.draw.rect(
-                        self.board_surface,
-                        hex_to_rgb(self.squares[square_index].color),
-                        (x, y, self.property_size, self.property_size),
-                    )
+        for row in range(1,14):
+            for col in range(1,14):
+                x = (col - 1) * self.property_size 
+                y = (row - 1) * self.property_size 
+                if row == 1:
+                    self.draw_row(col, x, y)
+                if row == 12:
+                    self.draw_row(col, x, y)
+                if row == 2 or row == 13:                  
+                    continue
+                if row > 2 and row < 12:
+                    if col == 1 or col == 12:
+                        self.draw_rectangle(x, y, False, True)
+                
         self.WIN.blit(self.board_surface, (0, 0))
+    
+    def draw_row(self, col, x, y):
+        if col == 1:
+            self.draw_rectangle(x,y, True, False)
+        elif col == 2 or col == 13:
+            return
+        elif col == 12:
+            self.draw_rectangle(x,y, True, False)
+        else:
+            self.draw_rectangle(x,y, False, False) 
+    
+    def draw_rectangle(self, x, y, is_corner, is_lateral):
+        if is_corner:
+            pygame.draw.rect(
+                            self.board_surface,
+                            hex_to_rgb("#cce6cf"),
+                            (x, y, self.property_size * 2, self.property_size * 2)
+                        )
+            pygame.draw.rect(
+                            self.board_surface,
+                            hex_to_rgb("#171717"),
+                            (x, y, self.property_size * 2, self.property_size * 2), width = self.border_width
+                        )
+        elif is_lateral:
+            pygame.draw.rect(
+                        self.board_surface,
+                        hex_to_rgb("#cce6cf"),
+                        (x, y, self.property_size * 2, self.property_size)
+                    )
+            pygame.draw.rect(
+                        self.board_surface,
+                        hex_to_rgb("#171717"),
+                        (x, y, self.property_size * 2, self.property_size), width = self.border_width
+                    )
+        else:
+            pygame.draw.rect(
+                        self.board_surface,
+                        hex_to_rgb("#cce6cf"),
+                        (x, y, self.property_size, self.property_size * 2)
+                    )
+            pygame.draw.rect(
+                        self.board_surface,
+                        hex_to_rgb("#171717"),
+                        (x, y, self.property_size, self.property_size * 2), width = self.border_width
+                    )
 
 
 # Update Game Board
