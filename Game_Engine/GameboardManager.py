@@ -1,5 +1,6 @@
 # This is the first file
 # Represent the Monopoly game board with properties, squares, and rules.
+import random
 from Game_Engine.Property import Property
 from Game_Engine.Dice import Dice
 from Game_Engine.Player import Player
@@ -23,7 +24,6 @@ class Gameboard:
     """
 
     def __init__(self) -> None:
-        self._dice = Dice()
         self._players = []
         self._board = [
             Square("Go"),
@@ -42,7 +42,7 @@ class Gameboard:
             Property(
                 "Sir Charles' Sanctuary", "#a14685", 140, [10, 50, 150, 450, 625, 750]
             ),
-            Utility("Electric Company"),
+            Utility("Electric Company", 150),
             Property("United Estates", "#a14685", 140, [10, 50, 150, 450, 625, 750]),
             Property(
                 "Virginia Vineyards", "#a14685", 160, [12, 60, 180, 500, 700, 900]
@@ -68,7 +68,7 @@ class Gameboard:
             Property(
                 "Ventilation Avenue", "#2277a2", 260, [22, 110, 330, 800, 975, 1150]
             ),
-            Utility("Water Works"),
+            Utility("Water Works", 150),
             Property(
                 "Marvin's Magic Meadow", "#2277a2", 280, [24, 120, 360, 850, 1025, 1200]
             ),
@@ -93,8 +93,6 @@ class Gameboard:
             Property("Bored Walk", "#e34537", 400, [50, 200, 600, 1400, 1700, 2000]),
         ]
 
-    # region Contracts
-
     def play_game(self) -> None:
         """Simulates the main game loop."""
         while len(self._players) > 1:
@@ -112,16 +110,26 @@ class Gameboard:
         """
         self._players.append(player)
 
-    # endregion
+    def _roll_dice(self) -> int:
+        """
+        Simulates rolling dice and returns the result as a random number
+        between 1 and the number of sides on a dice (6 in Monopoly).
+        """
+        return random.randint(1, 6)
 
     def _play_turn(self, player: Player) -> None:
-        """Handles the current player's turn.
+        """
+        Handles the current player's turn.
+
+        Begins by rolling the die twice and moving the player the sum of both
+        values. Based off the player's new position, the action correponding to
+        landed square is ran.
 
         Args:
             player: The current player.
         """
-        roll1 = self._dice.roll()
-        roll2 = self._dice.roll()
+        roll1 = self._roll_dice()
+        roll2 = self._roll_dice()
 
         player.move(roll1 + roll2)
         self.properties[player.position].action(player)

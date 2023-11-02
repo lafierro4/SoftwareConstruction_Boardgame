@@ -6,50 +6,67 @@ from Game_Engine.Player import Player
 
 
 class Property(Square):
-    """
-    Represents a property in a game.
-
-    Attributes:
-        name (str): The name of the Property.
-        color (str): The color of the Property, in Hex Code.
-        purchase_value (int): The purchase value of the Property.
-        rent_values (list of int): List of rent values for the Property.
-        is_owned (bool): True if the Property is owned, False otherwise.
-        owner: The player who owns the Property (if it is owned).
-    """
+    """Represents a property square on the Monopoly board."""
 
     def __init__(self, name: str, color: str, price: int, rent_values: list[int]):
         """
         Initializes a Property object with the specified attributes.
 
         Args:
-            name (str): The name of the Property.
-            color (str): The color of the Property, in Hex Code.
-            price (int): The initial purchase value of the Property.
-            rent_values (list of int): List of rent values for the Property.
+            name: The name of the property.
+            color: The color of the property represented as a Hex value.
+            price: The initial purchase value.
+            rent_values: List of rent values in ascending order.
         """
         Square.__init__(self, name, color)
         self._price = price
-        self.rent_values = rent_values
+        self._rent_values = rent_values
+        self._num_houses = 0
         self._owner = None
 
     def action(self, player: Player) -> None:
+        """
+        Allows the player to purchase the property or pay rent.
+
+        If the property has no owner, then the player will be prompted with the
+        choice to purchase the property if their balance is sufficient. If so,
+        then their balance will be subtracted by the property's price and
+        ownership is updated. If the property is already owned by someone else
+        besides the current player, then rent is calculated and paid.
+
+        Args:
+            player: The player that has landed on the property.
+        """
         if self._owner is None:
-            decision = input(
-                f"Player {player._name} at position {player.position} buy Property {self._name}? "
-            )
-            if player.balance >= self._price and decision == "yes":
+            if player.balance >= self._price:
+                # TODO Prompt user to choose whether they want to purchase
                 player.balance -= self._price
                 self._owner = player
         elif self._owner is not player:
             rent = self._calculate_rent()
-            print(
-                f"Player {player._name} at position {player.position} paying {rent} for {self._name}"
-            )
             player.pay_rent(self._owner, rent)
 
+    def build_house(self) -> None:
+        """
+        Builds a house on the property.
+
+        Allows the player to build a house so that rent my be increased. To do
+        so, the player must own all the properties on the color set.
+        """
+        pass
+
     def _calculate_rent(self) -> int:
-        return self.rent_values[0]
+        """
+        Determines how much the property's rent costs.
+
+        The price of rent is determined by how many houses have been built on
+        the property. If the owner has built multiple houses, then rent should
+        be increased.
+
+        Returns:
+            The price of rent adjusted by the number of houses.
+        """
+        return self._rent_values[self._num_houses]
 
 
 # Update Property Ownership

@@ -21,6 +21,9 @@
 # from Game_Engine.Property import Property
 
 
+import functools
+
+
 class Player:
     def __init__(self, name: str, token) -> None:
         self._name = name
@@ -33,6 +36,9 @@ class Player:
     def move(self, steps: int) -> None:
         """
         Moves the player a specified number of steps.
+
+        Args:
+            steps: The number of squares the player will move forward.
         """
         self._position = (self._position + steps) % 26
         self._last_roll = steps
@@ -56,6 +62,9 @@ class Player:
             self._balance -= amount
         else:
             exit
+
+    def calculate_assets(self):
+        return functools.reduce(lambda property: property._price, self._properties)
 
     # def add_property(self, property: Property) -> None:
     #     self._properties.append(property)

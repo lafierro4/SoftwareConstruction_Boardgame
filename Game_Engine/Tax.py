@@ -9,4 +9,5 @@ class Tax(Square):
         Square.__init__(self, name)
 
     def action(self, player: Player) -> None:
-        pass
+        if player.balance < 200:
+            pass
