@@ -34,6 +34,7 @@ class Bank:
     def purchase_property(self, player: Player, property: Property) -> None:
         if player.balance >= property.price:
             player.decrease_funds(property.price)
+            player.properties.append(property)
     
 
     def collect_rent(self, player: Player, property: Property) -> None:
