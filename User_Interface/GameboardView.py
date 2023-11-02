@@ -20,7 +20,7 @@ class GameboardView:
         self.WIN = win
         self.gameboard = Gameboard()
         self.property_size = 80
-        self.properties = self.gameboard.properties
+        self.squares = self.gameboard._board
         self.board_surface = pygame.Surface((WIDTH, HEIGHT))
 
     def setup_board(self):
@@ -32,10 +32,10 @@ class GameboardView:
 
                 if row == 0 or row == 7 or col == 0 or col == 7:
                     # Draw properties on the sides
-                    property_index = (row * 10 + col) % len(self.properties)
+                    square_index = (row * 10 + col) % len(self.squares)
                     pygame.draw.rect(
                         self.board_surface,
-                        hex_to_rgb(self.properties[property_index].color),
+                        hex_to_rgb(self.squares[square_index].color),
                         (x, y, self.property_size, self.property_size),
                     )
         self.WIN.blit(self.board_surface, (0, 0))

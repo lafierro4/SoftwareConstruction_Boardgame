@@ -3,9 +3,7 @@ from Game_Engine.Player import Player
 
 
 class Utility(Square):
-    """
-    Represents a utility square on the Monopoly board.
-    """
+    """Represents a utility square on the Monopoly board."""
 
     def __init__(self, name: str, price: int) -> None:
         Square.__init__(self, name)
