@@ -72,29 +72,29 @@ def title_menu():
 
 
 # TO DO Move Functionality below to GameboardView
-def initialize_player(SCREEN, pos_x, name, image):
+def initialize_player(SCREEN, name, image, gameboard_view):
     # create a surface object, image is drawn on it.
     token = pygame.image.load(image).convert_alpha()
     # Scale the image
     token = pygame.transform.scale(token, (40, 40))
+    
+    player_one = Player(name, token, gameboard_view.property_size)
     # Draw initial position of player on board
-    SCREEN.blit(token, (pos_x, 0))
-    player_one = Player(name, token)
+    SCREEN.blit(token, (player_one._position_x, player_one._position_y))
     return player_one
 
 
 def initialize_gameboard():
     # Initialize the board
-    pos_x = 0
-    player_one = initialize_player(SCREEN, pos_x, "michel", os.path.join("assets/images/car.png"))
     run = True
     clock = pygame.time.Clock()
     SCREEN.fill("black")
     gameboard_view = GameboardView(SCREEN)
+    player_one = initialize_player(SCREEN, "michel", os.path.join("assets", "images", "car.png"), gameboard_view)
     board_setup = gameboard_view.setup_board()
     gameboard = Gameboard()
-    gameboard.add_player(Player("James", "assets/images/car.png"))
-    gameboard.add_player(Player("Gello", "assets/images/car.png"))
+    gameboard.add_player(Player("James", os.path.join("assets", "images", "car.png"), gameboard_view.property_size))
+    gameboard.add_player(Player("Gello", os.path.join("assets", "images", "car.png"), gameboard_view.property_size))
     pygame.display.update()
     # gameboard.play_game()
 
@@ -103,9 +103,9 @@ def initialize_gameboard():
             if event.type == pygame.QUIT:
                 run = False
             if event.type == pygame.MOUSEBUTTONDOWN:
-                # Moves player with each click
+                # Moves player with each click the amount of spaces indicated
                 if event.button == 1:
-                    pos_x = player_one.move_player(SCREEN, gameboard_view, pos_x)
+                    token_rect = player_one.move_player(SCREEN, gameboard_view, 1)
 
         pygame.display.update()
         clock.tick(FPS)

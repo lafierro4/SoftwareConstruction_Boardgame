@@ -25,13 +25,15 @@ import functools
 
 
 class Player:
-    def __init__(self, name: str, token) -> None:
+    def __init__(self, name: str, token, property_size) -> None:
         self._name = name
         self.token = token
         self._balance = 1500
         self._properties = []
-        self._position = 0
+        self._token_rect = 0
         self._last_roll = 0
+        self._position_x = property_size * 11
+        self._position_y = property_size * 10
 
     def move(self, steps: int) -> None:
         """
@@ -40,7 +42,7 @@ class Player:
         Args:
             steps: The number of squares the player will move forward.
         """
-        self._position = (self._position + steps) % 26
+        self._token_rect = (self._token_rect + steps) % 26
         self._last_roll = steps
 
     def pay_rent(self, owner, amount: int) -> None:
@@ -69,14 +71,34 @@ class Player:
     # def add_property(self, property: Property) -> None:
     #     self._properties.append(property)
 
-    def move_player(self, win, game_board, pos_x):
-        for x in range(100):  # animate 100 frames
-            win.blit(game_board.board_surface, (0, 0))  # erase board
-            position = self.token.get_rect()  # gets player rectangle
-            pos_x += game_board.property_size
-            position.move_ip(pos_x, 0)
-            win.blit(self.token, position)  # redraws player token
-            return pos_x
+    def move_player(self, win, game_board, distance):
+        for x in range(100):   
+            for step in range(distance):
+                # erase board
+                win.blit(game_board.board_surface, (0, 0))  
+                # gets player rectangle
+                token_rect = self.token.get_rect() 
+                # conditions for movement direction
+                if self._position_y == game_board.property_size * 11:
+                    if self._position_x == game_board.property_size: 
+                        token_rect.move_ip(self._position_x,self._position_y - game_board.property_size)
+                    else:
+                        token_rect.move_ip(self._position_x - game_board.property_size, self._position_y) 
+                elif self._position_y == game_board.property_size:
+                    if self._position_x == game_board.property_size * 11:
+                        token_rect.move_ip(self._position_x,self._position_y + game_board.property_size)
+                    else:
+                        token_rect.move_ip(self._position_x + game_board.property_size,self._position_y)
+                else:
+                    if self._position_x == game_board.property_size:
+                        token_rect.move_ip(self._position_x, self._position_y - game_board.property_size)
+                    else:
+                        token_rect.move_ip(self._position_x,self._position_y + game_board.property_size)
+                self._position_x = token_rect.x
+                self._position_y = token_rect.y
+                #redraw player
+                win.blit(self.token, token_rect)  
+            return token_rect
 
     @property
     def balance(self) -> int:
@@ -91,5 +113,5 @@ class Player:
         return self._last_roll
 
     @property
-    def position(self) -> int:
-        return self._position
+    def token_rect(self) -> int:
+        return self._token_rect
