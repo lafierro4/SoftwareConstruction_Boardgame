@@ -29,23 +29,37 @@ class Player:
         self._name = name
         self.token = token
         self._balance = 1500
-        self._properties = []
-        self._token_rect = 0
+        self._assets = []
+        self._position = 0
         self._last_roll = 0
         self._position_x = property_size * 11
         self._position_y = property_size * 10
 
-    def move(self, steps: int) -> None:
+    def move(self, steps: int) -> int:
         """
         Moves the player a specified number of steps.
 
+        Increments the player's position by the specified number of steps. If
+        the player's new position happens to be more than 40 (where the player
+        has circled the entire board), then $200 will be added the their
+        balance and the offset is set as the new position.
+
         Args:
             steps: The number of squares the player will move forward.
+        
+        Returns: The player's new position.
         """
-        self._token_rect = (self._token_rect + steps) % 26
+        old_position = self._position
+        self._position = (self._position + steps) % 40
+        if old_position > self._position:
+            self._balance += 200
         self._last_roll = steps
+        return self._position
 
-    def pay_rent(self, owner, amount: int) -> None:
+    def transfer_money(self, owner, amount: int) -> None:
+        """
+        Pays rent out to a property owner.
+        """
         if self._balance >= amount:
             self._balance -= amount
             owner.balance += amount
@@ -53,20 +67,23 @@ class Player:
     def is_bankrupt(self) -> bool:
         return self._balance < 0
 
-    def increase_funds(self, amount):
+    def increase_balance(self, amount):
         if amount >= 0:
             self._balance += amount
         else:
             exit
 
-    def decrease_funds(self, amount: int) -> None:
+    def decrease_balance(self, amount: int) -> None:
         if amount >= 0:
             self._balance -= amount
         else:
             exit
 
-    def calculate_assets(self):
-        return functools.reduce(lambda property: property._price, self._properties)
+    def calculate_assets(self) -> int:
+        return functools.reduce(lambda sum_assets, asset: asset.price + sum_assets, self._assets)
+    
+    def owns_both_utilities(self) -> bool:
+        return sum(asset.square_type == "utility" for asset in self._assets) >= 2
 
     # def add_property(self, property: Property) -> None:
     #     self._properties.append(property)
@@ -111,7 +128,3 @@ class Player:
     @property
     def last_roll(self) -> int:
         return self._last_roll
-
-    @property
-    def token_rect(self) -> int:
-        return self._token_rect
