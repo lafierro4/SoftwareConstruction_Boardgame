@@ -3,7 +3,7 @@
 # It allows players to navigate and make selections within the game. 
 
 import pygame, os
-from User_Interface.Button import Button
+from User_Interface.Button import *
 pygame.init()
 
 # Display Choice 
@@ -12,8 +12,6 @@ pygame.init()
 # Post-Condition: \@ensures self.ui.display_updated_settings() 
 # Method Signature: def display_choice(self) -> None: 
 
-title_font = pygame.font.SysFont("consolas", 75)
-button_font =  pygame.font.SysFont("consolas", 50)
 
 def main_menu(SCREEN: pygame.Surface,FPS) -> int:
     """
@@ -22,24 +20,31 @@ def main_menu(SCREEN: pygame.Surface,FPS) -> int:
         Returns Code based on user's choice
     """
     # Sets the Background Image and Sound, Sound loops until Screen transision.
-    bg_image = pygame.transform.scale(pygame.image.load(os.path.join("assets", "images", "title_bg.png")), (SCREEN.get_size()[0], SCREEN.get_size()[1]))
-    bg_image.set_alpha(128)
-    SCREEN.blit(bg_image,(0,0))
+    SCREEN.fill("white")
+    bg_image = pygame.transform.smoothscale(pygame.image.load(os.path.join("assets", "images", "title_bg.png")), (SCREEN.get_width(), SCREEN.get_height()))
+    #bg_image.set_alpha(128)
+    
     pygame.mixer.init()
     pygame.mixer.music.load(os.path.join("assets","sounds","title_bg_music.mp3"))
+    pygame.mixer.music.set_volume(0.45)
     pygame.mixer.music.play(loops= -1)
+
+    title_font = pygame.font.SysFont("consolas", 75)
+    button_font =  pygame.font.SysFont("consolas", 50)
 
     # Screen Game Loop, Renders Buttons and Checks if the user clicks them
     run = True
     clock = pygame.time.Clock()
     while run:
+        bg_image = pygame.transform.smoothscale(bg_image, (SCREEN.get_width(), SCREEN.get_height()))
+        SCREEN.blit(bg_image,(0,0))
         mouse_pos = pygame.mouse.get_pos()
         menu_text = title_font.render("Cloneopoly", True, "black")
-        menu_text_rect = menu_text.get_rect(center = (SCREEN.get_size()[0]/2, SCREEN.get_size()[1]/5))
+        menu_text_rect = menu_text.get_rect(center = (SCREEN.get_width()/2, SCREEN.get_height()/5))
       
-        play_button = Button(image = None, pos=(SCREEN.get_size()[0]/2, SCREEN.get_size()[1]/3), text_input= "Play", font= button_font , base_color="#39FF14", hover_color= "#0a18f3")
-        options_button = Button(image= None, pos=(SCREEN.get_size()[0]/2, SCREEN.get_size()[1]/3 + 100), text_input= "Options", font= button_font, base_color= "#39FF14", hover_color= "#0a18f3")
-        quit_button = Button(image= None, pos=(SCREEN.get_size()[0]/2, SCREEN.get_size()[1]/3 + 200), text_input= "Quit", font= button_font, base_color= "#39FF14", hover_color= "#0a18f3")
+        play_button = Button(pos=(SCREEN.get_width()/2, SCREEN.get_height()/3), text_input= "Play", font= button_font , base_color="#39FF14", hover_color= "#0a18f3")
+        options_button = Button(pos=(SCREEN.get_width()/2, SCREEN.get_height()/3 + 100), text_input= "Options", font= button_font, base_color= "#39FF14", hover_color= "#0a18f3")
+        quit_button = Button(pos=(SCREEN.get_width()/2, SCREEN.get_height()/3 + 200), text_input= "Quit", font= button_font, base_color= "#39FF14", hover_color= "#0a18f3")
         
         SCREEN.blit(menu_text,menu_text_rect)
       
@@ -55,10 +60,75 @@ def main_menu(SCREEN: pygame.Surface,FPS) -> int:
                     pygame.mixer.music.stop()
                     return 1
                 if options_button.checkForInput(mouse_pos):
-                    return 2
+                    options_menu(SCREEN,FPS)
                 if quit_button.checkForInput(mouse_pos):
-                    return 3
+                    run = False
         pygame.display.update()
         clock.tick(FPS)
+    pygame.quit()
+    quit()
     return 0
 
+def options_menu(SCREEN: pygame.Surface, FPS):
+
+    SCREEN.fill("white")
+    default_size = (1280, 720)
+    window_size_list = [(640, 360), (960,540),(1280,720),(1920,1080)]
+    for index, size in enumerate(window_size_list):
+        if pygame.display.get_window_size() == size:
+            current_size_index = index
+    bg_image = pygame.transform.smoothscale(pygame.image.load(os.path.join("assets","images","bg_settings.png")), (SCREEN.get_width(), SCREEN.get_height()) )
+    bg_image.set_alpha(128)
+    
+
+    next_arrow_image = pygame.image.load(os.path.join("assets", "images", "next_arrow.png"))
+    previous_arrow_image = pygame.image.load(os.path.join("assets","images","previous_arrow.png"))
+    return_arrow_image = pygame.transform.scale(pygame.image.load(os.path.join("assets","images","return.png")), (50,50))
+    text_font = pygame.font.SysFont("consolas", 50)
+
+    run = True
+    clock = pygame.time.Clock()
+
+    while run:
+        if (bg_image.get_width(), bg_image.get_height()) != (SCREEN.get_width(), SCREEN.get_height()):
+            bg_image = pygame.transform.smoothscale(bg_image, (SCREEN.get_width(), SCREEN.get_height()))
+        SCREEN.blit(bg_image,(0,0))
+        
+        mouse_pos = pygame.mouse.get_pos()
+        menu_text = text_font.render(str(window_size_list[current_size_index]), True, "#39FF14")
+        menu_text_rect = menu_text.get_rect(center = (SCREEN.get_width()/2, SCREEN.get_height()/4))
+        SCREEN.blit(menu_text,menu_text_rect)
+
+        previous_button = ImageButton(pos=((SCREEN.get_width()/4), (SCREEN.get_height()/4)), image= previous_arrow_image)
+        next_button = ImageButton(pos=(((SCREEN.get_width()/4)*3),(SCREEN.get_height()/4)), image= next_arrow_image)
+        return_button = ImageButton(pos=(50,50) , image=return_arrow_image)
+        
+        for button in [previous_button, next_button, return_button]:
+            button.update(SCREEN)
+        
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run = False
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if previous_button.checkForInput(mouse_pos):
+                    current_size_index -= 1
+                    if current_size_index < 0:
+                        current_size_index = len(window_size_list) - 1
+                    new_width, new_height = window_size_list[current_size_index]
+                    pygame.display.set_mode((new_width, new_height))
+                    pygame.display.get_surface().blit(SCREEN, (0, 0))
+                if next_button.checkForInput(mouse_pos):
+                    current_size_index += 1
+                    if current_size_index >= len(window_size_list):
+                        current_size_index = 0
+                    new_width, new_height = window_size_list[current_size_index]
+                    pygame.display.set_mode((new_width, new_height))
+                    pygame.display.get_surface().blit(SCREEN, (0, 0))
+                if return_button.checkForInput(mouse_pos):
+                    return
+
+        pygame.display.update()
+        clock.tick(FPS)
+    pygame.quit()
+    quit()
+    return 
