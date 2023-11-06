@@ -5,7 +5,7 @@
 # TO DO: Agree on short cut names for imports
 import pygame, os
 from Game_Engine.GameboardManager import Gameboard
-from User_Interface.GameboardView import GameboardView
+from User_Interface.GameboardView import GameboardView, dice_roll
 from Game_Engine.Player import Player
 import User_Interface.MenuView as mv
 
@@ -92,6 +92,7 @@ def initialize_gameboard():
     gameboard_view = GameboardView(SCREEN)
     player_one = initialize_player(SCREEN, "michel", os.path.join("assets", "images", "car.png"), gameboard_view)
     board_setup = gameboard_view.setup_board()
+    dice_roll(SCREEN,FPS)
     gameboard = Gameboard()
     gameboard.add_player(Player("James", os.path.join("assets", "images", "car.png"), gameboard_view.property_size))
     gameboard.add_player(Player("Gello", os.path.join("assets", "images", "car.png"), gameboard_view.property_size))

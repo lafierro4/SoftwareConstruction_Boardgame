@@ -1,10 +1,11 @@
 # GameboardView
 # In charge of rendering the game board, properties, and other visual
 # elements related to the game board. Handles user interactions with the game board, such as property selections and purchases.
-import pygame
+import pygame, os, random
 
 WIDTH, HEIGHT = 1280, 720
 from Game_Engine.GameboardManager import Gameboard
+from User_Interface.Button import Button, ImageButton
 
 
 def hex_to_rgb(hex_code):
@@ -86,6 +87,59 @@ class GameboardView:
                         hex_to_rgb("#171717"),
                         (x, y, self.property_size, self.property_size * 2), width = self.border_width
                     )
+
+def dice_roll(SCREEN: pygame.Surface, FPS):
+    dice_img = pygame.transform.smoothscale(pygame.image.load(os.path.join("assets", "images", "dice.png")),(50,50))
+    
+    dice_button = ImageButton(((SCREEN.get_width()/1.75), (SCREEN.get_height()/1.25)), dice_img)
+
+    dice_button.update(SCREEN)
+    run = True
+    clock = pygame.time.Clock()
+
+    while run:
+        mouse_pos = pygame.mouse.get_pos()
+        for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    run = False
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    if dice_button.checkForInput(mouse_pos):
+                        dice_1 = random.randint(1, 6)
+                        dice_2 = random.randint(1, 6)
+                        result = dice_1 + dice_2
+                        result_faces = display_result([dice_1, dice_2])
+                        SCREEN.blit(result_faces[0],((SCREEN.get_width()/1.65), (SCREEN.get_height()/1.30)))
+                        SCREEN.blit(result_faces[1],((SCREEN.get_width()/1.53), (SCREEN.get_height()/1.30)))
+                        #then send result to player mover
+        pygame.display.update()
+        clock.tick(FPS)
+
+def display_result(results: list[int]):
+    face_1 = pygame.transform.smoothscale(pygame.image.load(os.path.join("assets", "images", "dice_1.png")), (50,50))
+    face_2 = pygame.transform.smoothscale(pygame.image.load(os.path.join("assets", "images", "dice_2.png")), (50,50))
+    face_3 = pygame.transform.smoothscale(pygame.image.load(os.path.join("assets", "images", "dice_3.png")), (50,50))
+    face_4 = pygame.transform.smoothscale(pygame.image.load(os.path.join("assets", "images", "dice_4.png")), (50,50))
+    face_5 = pygame.transform.smoothscale(pygame.image.load(os.path.join("assets", "images", "dice_5.png")), (50,50))
+    face_6 = pygame.transform.smoothscale(pygame.image.load(os.path.join("assets", "images", "dice_6.png")), (50,50))
+    result_faces = [face_1,face_2]
+
+    for inx, result in enumerate(results):
+        match (result):
+            case 1:
+                result_faces[inx] = face_1
+            case 2:
+                result_faces[inx] = face_2
+            case 3:
+                result_faces[inx] = face_3
+            case 4:
+                result_faces[inx] = face_4
+            case 5:
+                result_faces[inx] = face_5
+            case 6:
+                result_faces[inx] = face_6
+    
+    return result_faces
+
 
 
 # Update Game Board
