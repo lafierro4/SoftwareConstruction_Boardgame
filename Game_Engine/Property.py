@@ -16,7 +16,7 @@ class Property(Space):
     components of the game.
     """
 
-    def __init__(self, name: str, property_type: str, color: str, price: int, rent_values: list[int] = None):
+    def __init__(self, name: str, property_type: str, color: str, price: int, rent_values: list[int] = []):
         """
         Initializes a Property object with the specified attributes.
 
@@ -80,7 +80,7 @@ class Property(Space):
         """
         if self._square_type == "property":
             return self._rent_values[self._num_houses]
-        elif self._square_type == "utility":
+        else:
             multiplier = 4 if player.owns_both_utilities() else 10
             return multiplier * player.last_roll
     

@@ -1,8 +1,7 @@
 from Game_Engine.Player import Player
 from Game_Engine.Space import Space
 
-from sys import version
-print(version)
+
 class Square(Space):
     """Represents a square on the Monopoly board."""
 

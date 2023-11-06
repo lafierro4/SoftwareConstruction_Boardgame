@@ -47,7 +47,8 @@ class Player:
         Args:
             steps: The number of squares the player will move forward.
         
-        Returns: The player's new position.
+        Returns:
+            The player's new position.
         """
         old_position = self._position
         self._position = (self._position + steps) % 40

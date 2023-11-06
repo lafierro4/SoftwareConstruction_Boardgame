@@ -3,6 +3,7 @@
 import random
 from Game_Engine.Property import Property
 from Game_Engine.Player import Player
+from Game_Engine.Space import Space
 from Game_Engine.Square import Square
 
 #  Initialize Gameboard
@@ -22,7 +23,7 @@ class Gameboard:
 
     def __init__(self) -> None:
         self._players: list[Player] = []
-        self._board = [
+        self._board: list[Space] = [
             Square("Go", "corner"),
             Property("Mediterranean Meals", "property", "#a37759", 60, [2, 10, 30, 90, 160, 250]),
             Square("Community Chest", "community_chest"),
@@ -72,7 +73,6 @@ class Gameboard:
                 self._play_turn(player)
                 if player.is_bankrupt():
                     self._players.remove(player)
-        print("Player wins!")
 
     def add_player(self, player: Player) -> None:
         """
@@ -105,7 +105,7 @@ class Gameboard:
         roll2 = self._roll_dice()
 
         position = player.move(roll1 + roll2)
-        self.properties[position].action(player)
+        self._board[position].action(player)
 
 
 # Handle Turn Base Action
