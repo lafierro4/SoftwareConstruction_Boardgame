@@ -39,9 +39,9 @@ pygame.display.set_caption("Cloneopoly")
 # Method Signature: def form_menu(self) -> None:
 
 
-def main_loop():
+def start_game():
     """
-    The Main Game Loop, Checks for Inputs and Transitions to other Screens/Game Loops
+    The Initial Game Loop,
     """
     run = True
     clock = pygame.time.Clock()
@@ -51,17 +51,14 @@ def main_loop():
             run = False
         if return_status == 1:
             return_status = initialize_gameboard()
-        if return_status == 2:
-            pass
-        # We might need this event handler
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
-
         pygame.display.update()
         clock.tick(FPS)
 
     pygame.quit()
+    quit()
 
 
 def title_menu():
@@ -73,59 +70,18 @@ def title_menu():
     return menu_choice
 
 
-# TO DO Move Functionality below to GameboardView
-def initialize_player(SCREEN, name, image, gameboard_view):
-    # create a surface object, image is drawn on it.
-    token = pygame.image.load(image).convert_alpha()
-    # Scale the image
-    token = pygame.transform.scale(token, (40, 40))
-    
-    player_one = Player(name, token, gameboard_view.property_size)
-    # Draw initial position of player on board
-    SCREEN.blit(token, (player_one._position_x, player_one._position_y))
-    return player_one
 
 
 def initialize_gameboard():
     # Initialize the board
-    run = True
-    clock = pygame.time.Clock()
     SCREEN.fill("black")
-    gameboard_view = gv.GameboardView(SCREEN)
-    player_one = initialize_player(SCREEN, "michel", os.path.join("assets", "images", "car.png"), gameboard_view)
-    board_setup = gameboard_view.setup_board()
-    gameboard = Gameboard()
-    gameboard.add_player(Player("James", os.path.join("assets", "images", "car.png"), gameboard_view.property_size))
-    gameboard.add_player(Player("Gello", os.path.join("assets", "images", "car.png"), gameboard_view.property_size))
+    gameboard_view = gv.GameboardView()
+    gameboard_view.setup_board()
     pygame.display.update()
-    # gameboard.play_game()
-    dice_img = pygame.transform.smoothscale(pygame.image.load(os.path.join("assets", "images", "dice.png")),(50,50))
+    gameboard_view.main_loop_screen(SCREEN,FPS,1)
     
-    dice_button = ImageButton(((SCREEN.get_width()/1.75), (SCREEN.get_height()/1.25)), dice_img)
+
+    
 
 
-    while run:
-        mouse_pos = pygame.mouse.get_pos()
-        dice_button.update(SCREEN)
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                run = False
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                # Moves player with each click the amount of spaces indicated
-                if dice_button.checkForInput(mouse_pos):
-                    dice_1 = random.randint(1, 6)
-                    dice_2 = random.randint(1, 6)
-                    result = dice_1 + dice_2
-                    result_faces = gv.display_result([dice_1,dice_2])
-                    print(f"{dice_1} + {dice_2} = {result}")
-                    gameboard_view.render_player_move(SCREEN,player_one,result)
-                    SCREEN.blit(result_faces[0],((SCREEN.get_width()/1.65), (SCREEN.get_height()/1.30)))
-                    SCREEN.blit(result_faces[1],((SCREEN.get_width()/1.53), (SCREEN.get_height()/1.30)))
-                    
-                    
-        pygame.display.update()
-        clock.tick(FPS)
-    return 0
-
-
-main_loop()
+start_game()

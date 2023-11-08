@@ -28,6 +28,7 @@ class Player:
     def __init__(self, name: str, token, property_size) -> None:
         self._name = name
         self.token = token
+        self.current_space = -1
         self._balance = 1500
         self._properties = []
         self._token_rect = 0

@@ -16,16 +16,14 @@ def hex_to_rgb(hex_code):
 class GameboardView:
     def __init__(
         self,
-        win,
     ):
-        self.WIN = win
         self.gameboard = Gameboard()
         self.property_size = 50
         self.squares = self.gameboard._board
         self.board_surface = pygame.Surface((WIDTH, HEIGHT))
         self.border_width = 2
 
-    def setup_board(self):
+    def setup_board(self,screen:pygame.Surface):
         self.board_surface.fill((255, 255, 255))
         for row in range(1,14):
             for col in range(1,14):
@@ -41,7 +39,7 @@ class GameboardView:
                     if col == 1 or col == 12:
                         self.draw_rectangle(x, y, False, True)
                 
-        self.WIN.blit(self.board_surface, (0, 0))
+        screen.blit(self.board_surface, (0, 0))
     
     def draw_row(self, col, x, y):
         if col == 1:
@@ -87,7 +85,9 @@ class GameboardView:
                         hex_to_rgb("#171717"),
                         (x, y, self.property_size, self.property_size * 2), width = self.border_width
                     )
+            
     def render_player_move(self, screen: pygame.Surface, player: Player, distance:int):
+        print(player.current_space)
         for step in range(distance):
             # erase board  
             screen.blit(self.board_surface, (0, 0))  
@@ -114,9 +114,60 @@ class GameboardView:
             player._position_y = token_rect.y
             # Redraw player
             screen.blit(player.token, token_rect)
+        
+        player.current_space += distance
+        if player.current_space >= 40:
+            player.current_space -= 40
+        return player.current_space
             # Introduce a delay to control the animation speed (adjust the milliseconds as needed)
-            pygame.time.delay(100)  # 500 milliseconds (0.5 seconds) 
+            #pygame.time.delay(100)  # 500 milliseconds (0.5 seconds) 
 
+    def main_loop_screen(self, SCREEN: pygame.Surface, FPS, number_players: int):
+
+        player_one = initialize_player(SCREEN, "michel", os.path.join("assets", "images", "car.png"), self)
+
+        dice_img = pygame.transform.smoothscale(pygame.image.load(os.path.join("assets", "images", "dice.png")),(50,50))
+        dice_button = ImageButton(((SCREEN.get_width()/1.75), (SCREEN.get_height()/1.25)), dice_img)
+        display_action(SCREEN,player_one,None)
+
+        run = True
+        clock = pygame.time.Clock()
+        while run:
+            mouse_pos = pygame.mouse.get_pos()
+            dice_button.update(SCREEN)
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    run = False
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    # Moves player with each click the amount of spaces indicated
+                    if event.button == 1 and dice_button.checkForInput(mouse_pos):
+                        dice_1 = random.randint(1, 6)
+                        dice_2 = random.randint(1, 6)
+                        result = dice_1 + dice_2
+                        result_faces = display_result([dice_1,dice_2])
+                        print(f"{dice_1} + {dice_2} = {result}")
+                        new_player_position = self.render_player_move(SCREEN,player_one,result)
+                        SCREEN.blit(result_faces[0],((SCREEN.get_width()/1.65), (SCREEN.get_height()/1.30)))
+                        SCREEN.blit(result_faces[1],((SCREEN.get_width()/1.53), (SCREEN.get_height()/1.30)))
+                        print(f"{new_player_position}")
+                      
+            
+                        
+            pygame.display.update()
+            clock.tick(FPS)
+        return 0
+
+# TO DO Move Functionality below to GameboardView
+def initialize_player(SCREEN, name, image, gameboard_view):
+    # create a surface object, image is drawn on it.
+    token = pygame.image.load(image).convert_alpha()
+    # Scale the image
+    token = pygame.transform.scale(token, (40, 40))
+    
+    player_one = Player(name, token, gameboard_view.property_size)
+    # Draw initial position of player on board
+    SCREEN.blit(token, (player_one._position_x, player_one._position_y))
+    return player_one
 
 
 def display_result(results: list[int]):
@@ -144,7 +195,10 @@ def display_result(results: list[int]):
                 result_faces[inx] = face_6
     return result_faces
 
-
+def display_action(screen: pygame.Surface, player, square_index):
+    button_font = pygame.font.SysFont("Minecraft", 25)
+    yes_button  = Button((150,400),"YES", button_font, "black", "#0f0")
+    yes_button.update(screen)
 
 # Update Game Board
 # Renders the current game state in real time by communicating with the Game Board Manager.
