@@ -3,11 +3,12 @@
 # This is where we will have all the pygame components, along with the other UI classes
 
 # TO DO: Agree on short cut names for imports
-import pygame, os
+import pygame, os,random
 from Game_Engine.GameboardManager import Gameboard
-from User_Interface.GameboardView import GameboardView, dice_roll
+import User_Interface.GameboardView as gv
 from Game_Engine.Player import Player
 import User_Interface.MenuView as mv
+from User_Interface.Button import *
 
 pygame.init()
 # Constants
@@ -17,6 +18,7 @@ FPS = 60
 WIDTH, HEIGHT = 1280, 720
 SCREEN = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Cloneopoly")
+
 
 # Initial Board Rendering
 # Collaborates with the GameBoardView to render the Initial Board State.
@@ -89,25 +91,38 @@ def initialize_gameboard():
     run = True
     clock = pygame.time.Clock()
     SCREEN.fill("black")
-    gameboard_view = GameboardView(SCREEN)
+    gameboard_view = gv.GameboardView(SCREEN)
     player_one = initialize_player(SCREEN, "michel", os.path.join("assets", "images", "car.png"), gameboard_view)
     board_setup = gameboard_view.setup_board()
-    dice_roll(SCREEN,FPS)
     gameboard = Gameboard()
     gameboard.add_player(Player("James", os.path.join("assets", "images", "car.png"), gameboard_view.property_size))
     gameboard.add_player(Player("Gello", os.path.join("assets", "images", "car.png"), gameboard_view.property_size))
     pygame.display.update()
     # gameboard.play_game()
+    dice_img = pygame.transform.smoothscale(pygame.image.load(os.path.join("assets", "images", "dice.png")),(50,50))
+    
+    dice_button = ImageButton(((SCREEN.get_width()/1.75), (SCREEN.get_height()/1.25)), dice_img)
+
 
     while run:
+        mouse_pos = pygame.mouse.get_pos()
+        dice_button.update(SCREEN)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
             if event.type == pygame.MOUSEBUTTONDOWN:
                 # Moves player with each click the amount of spaces indicated
-                if event.button == 1:
-                    token_rect = player_one.move_player(SCREEN, gameboard_view, 1)
-
+                if dice_button.checkForInput(mouse_pos):
+                    dice_1 = random.randint(1, 6)
+                    dice_2 = random.randint(1, 6)
+                    result = dice_1 + dice_2
+                    result_faces = gv.display_result([dice_1,dice_2])
+                    print(f"{dice_1} + {dice_2} = {result}")
+                    gameboard_view.render_player_move(SCREEN,player_one,result)
+                    SCREEN.blit(result_faces[0],((SCREEN.get_width()/1.65), (SCREEN.get_height()/1.30)))
+                    SCREEN.blit(result_faces[1],((SCREEN.get_width()/1.53), (SCREEN.get_height()/1.30)))
+                    
+                    
         pygame.display.update()
         clock.tick(FPS)
     return 0

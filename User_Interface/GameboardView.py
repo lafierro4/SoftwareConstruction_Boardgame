@@ -4,7 +4,7 @@
 import pygame, os, random
 
 WIDTH, HEIGHT = 1280, 720
-from Game_Engine.GameboardManager import Gameboard
+from Game_Engine.GameboardManager import Gameboard, Player
 from User_Interface.Button import Button, ImageButton
 
 
@@ -87,32 +87,37 @@ class GameboardView:
                         hex_to_rgb("#171717"),
                         (x, y, self.property_size, self.property_size * 2), width = self.border_width
                     )
+    def render_player_move(self, screen: pygame.Surface, player: Player, distance:int):
+        for step in range(distance):
+            # erase board  
+            screen.blit(self.board_surface, (0, 0))  
+            # gets player rectangle
+            token_rect = player.token.get_rect() 
+            # conditions for movement direction
+            if player._position_y == self.property_size * 11:
+                if player._position_x == self.property_size: 
+                    token_rect.move_ip(player._position_x,player._position_y - self.property_size)
+                else:
+                    token_rect.move_ip(player._position_x - self.property_size, player._position_y) 
+            elif player._position_y == self.property_size:
+                if player._position_x == self.property_size * 11:
+                    token_rect.move_ip(player._position_x,player._position_y + self.property_size)
+                else:
+                    token_rect.move_ip(player._position_x + self.property_size,player._position_y)
+            else:
+                if player._position_x == self.property_size:
+                    token_rect.move_ip(player._position_x, player._position_y - self.property_size)
+                else:
+                    token_rect.move_ip(player._position_x,player._position_y + self.property_size)
+            # Update player's position
+            player._position_x = token_rect.x
+            player._position_y = token_rect.y
+            # Redraw player
+            screen.blit(player.token, token_rect)
+            # Introduce a delay to control the animation speed (adjust the milliseconds as needed)
+            pygame.time.delay(100)  # 500 milliseconds (0.5 seconds) 
 
-def dice_roll(SCREEN: pygame.Surface, FPS):
-    dice_img = pygame.transform.smoothscale(pygame.image.load(os.path.join("assets", "images", "dice.png")),(50,50))
-    
-    dice_button = ImageButton(((SCREEN.get_width()/1.75), (SCREEN.get_height()/1.25)), dice_img)
 
-    dice_button.update(SCREEN)
-    run = True
-    clock = pygame.time.Clock()
-
-    while run:
-        mouse_pos = pygame.mouse.get_pos()
-        for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    run = False
-                if event.type == pygame.MOUSEBUTTONDOWN:
-                    if dice_button.checkForInput(mouse_pos):
-                        dice_1 = random.randint(1, 6)
-                        dice_2 = random.randint(1, 6)
-                        result = dice_1 + dice_2
-                        result_faces = display_result([dice_1, dice_2])
-                        SCREEN.blit(result_faces[0],((SCREEN.get_width()/1.65), (SCREEN.get_height()/1.30)))
-                        SCREEN.blit(result_faces[1],((SCREEN.get_width()/1.53), (SCREEN.get_height()/1.30)))
-                        #then send result to player mover
-        pygame.display.update()
-        clock.tick(FPS)
 
 def display_result(results: list[int]):
     face_1 = pygame.transform.smoothscale(pygame.image.load(os.path.join("assets", "images", "dice_1.png")), (50,50))
@@ -137,7 +142,6 @@ def display_result(results: list[int]):
                 result_faces[inx] = face_5
             case 6:
                 result_faces[inx] = face_6
-    
     return result_faces
 
 
