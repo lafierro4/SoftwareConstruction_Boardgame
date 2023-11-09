@@ -74,6 +74,7 @@ def options_menu(SCREEN: pygame.Surface, FPS):
     SCREEN.fill("white")
     default_size = (1280, 720)
     window_size_list = [(640, 360), (960,540),(1280,720),(1920,1080)]
+    current_size_index = 2
     for index, size in enumerate(window_size_list):
         if pygame.display.get_window_size() == size:
             current_size_index = index

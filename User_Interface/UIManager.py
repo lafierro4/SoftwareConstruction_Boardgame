@@ -78,7 +78,7 @@ def initialize_gameboard():
     gameboard_view = gv.GameboardView()
     gameboard_view.setup_board(SCREEN)
     pygame.display.update()
-    gameboard_view.main_loop_screen(SCREEN,FPS,1)
+    gameboard_view.main_loop_screen(SCREEN,1)
     
 
     

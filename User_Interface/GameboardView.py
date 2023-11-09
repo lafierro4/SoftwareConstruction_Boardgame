@@ -3,14 +3,16 @@
 # elements related to the game board. Handles user interactions with the game board, such as property selections and purchases.
 import pygame, os, random
 
+FPS = 60
 WIDTH, HEIGHT = 1280, 720
-from Game_Engine.GameboardManager import Gameboard, Player
+from Game_Engine.GameboardManager import Gameboard, Player, Property
 from User_Interface.Button import Button, ImageButton
 
 
 def hex_to_rgb(hex_code) -> tuple[int, int, int]:
     hex_code = hex_code.lstrip("#")
-    return tuple(int(hex_code[i : i + 2], 16) for i in (0, 2, 4))
+    r, g, b = int(hex_code[0:2], 16), int(hex_code[2:4], 16), int(hex_code[4:6], 16)
+    return r, g, b
 
 
 class GameboardView:
@@ -116,12 +118,10 @@ class GameboardView:
             # Introduce a delay to control the animation speed (adjust the milliseconds as needed)
             #pygame.time.delay(100)  # 500 milliseconds (0.5 seconds) 
 
-    def main_loop_screen(self, SCREEN: pygame.Surface, FPS, number_players: int):
+    def main_loop_screen(self, SCREEN: pygame.Surface, number_players: int):
         player_one = initialize_player(SCREEN, "michel", os.path.join("assets", "images", "car.png"), self)
-
         dice_img = pygame.transform.smoothscale(pygame.image.load(os.path.join("assets", "images", "dice.png")),(50,50))
         dice_button = ImageButton(((SCREEN.get_width() / 1.75), (SCREEN.get_height() / 1.25)), dice_img)
-        display_action(SCREEN, player_one, None)
 
         dice_surfaces = list(map(lambda index: pygame.transform.smoothscale(pygame.image.load(os.path.join("assets", "images", f"dice_{index}.png")), (50, 50)), range(1,7)))
 
@@ -144,12 +144,72 @@ class GameboardView:
                         self.render_player_move(SCREEN,player_one,dice_rolls[0] + dice_rolls[1])
                         for index, roll in enumerate(dice_rolls):
                             SCREEN.blit(dice_surfaces[roll - 1], (SCREEN.get_width() / (1.65 - index * 0.12), SCREEN.get_height() / 1.30))
-                        display_action(SCREEN, player_one, player_position)
+                        self.display_action(SCREEN, player_one, player_position)
                       
             pygame.display.update()
             clock.tick(FPS)
         
         return 0
+
+
+    def display_action(self, screen: pygame.Surface, player:Player, square_index):
+        font = pygame.font.Font(os.path.join("assets","images", "Minecraft.ttf"), 30)
+        current_square = self.gameboard._board[square_index]
+        run = True
+        clock = pygame.time.Clock()
+        quit_pygame = False
+        #  modify to display the square text,
+        # action = font.render(str(current_square), True, (0,0,0))
+        # screen.blit(action,(165,250)
+        print(str(current_square))
+        if isinstance(current_square,Property):
+            while run:
+                if not current_square.is_owned():
+                    action = (f"Would you like to buy {current_square.name} for ${current_square.price}?")
+                    action_text = font.render(action, True,hex_to_rgb("#000000"))
+                    action_text_rect = action_text.get_rect(center = (screen.get_width()/1.35, screen.get_height()/2))
+                    screen.blit(action_text,action_text_rect)
+                    yes_button  = Button((screen.get_width()/1.3-150,screen.get_height()/1.5),"YES", font, "#000000", "#00ff00")
+                    no_button = Button((screen.get_width()/1.3,screen.get_height()/1.5), "NO", font, "#000000", "#ff0000")
+                    mouse_pos = pygame.mouse.get_pos()
+
+                    for button in [yes_button, no_button]:
+                        button.changeColor(mouse_pos)
+                        button.update(screen)
+
+                    for event in pygame.event.get():
+                        if event.type == pygame.QUIT:
+                            run = False
+                        if event.type == pygame.MOUSEBUTTONDOWN:
+                            if yes_button.checkForInput(mouse_pos):
+                                if player.balance >= current_square.price:
+                                    print(f"{current_square.owner_name}, {player.balance}, {player._assets}")
+                                    current_square.action(player)
+                                    player.add_property(current_square)
+                                    print(f"{current_square.owner_name}, {player.balance}, {player._assets}")
+                                    return
+                                else:
+                                    print("no money")
+                            if no_button.checkForInput(mouse_pos):
+                                print("no")
+                                return
+                elif current_square.owner is not player:
+                    action = (f"Player {current_square.owner_name} owns {current_square.name}, pay ${current_square._rent_values}")
+                    action_text = font.render(action, True,hex_to_rgb("#000000"))
+                    action_text_rect = action_text.get_rect(center = (screen.get_width()/1.35, screen.get_height()/2))
+                    screen.blit(action_text,action_text_rect)
+                else:
+                    action = (f"You own {current_square.name}")
+                    action_text = font.render(action, True,hex_to_rgb("#000000"))
+                    action_text_rect = action_text.get_rect(center = (screen.get_width()/1.35, screen.get_height()/2))
+                    screen.blit(action_text,action_text_rect)
+                pygame.display.update()
+                clock.tick(FPS)
+
+        if quit_pygame == True:
+            pygame.quit()
+            quit()
+        return
 
 
 
@@ -165,10 +225,24 @@ def initialize_player(SCREEN, name, image, gameboard_view):
     SCREEN.blit(token, (player_one._position_x, player_one._position_y))
     return player_one
 
-def display_action(screen: pygame.Surface, player, square_index):
-    button_font = pygame.font.SysFont("Minecraft", 25)
-    yes_button  = Button((150,400),"YES", button_font, "black", "#0f0")
-    yes_button.update(screen)
+
+def render_wrapped_text(text, font, max_width):
+    words = text.split(' ')
+    wrapped_lines = []
+    current_line = words[0]
+
+    for word in words[1:]:
+        test_line = current_line + ' ' + word
+        test_width, _ = font.size(test_line)
+            
+        if test_width <= max_width:
+                current_line = test_line
+        else:
+            wrapped_lines.append(current_line)
+            current_line = word
+
+    wrapped_lines.append(current_line)
+    return wrapped_lines   
 
 # Update Game Board
 # Renders the current game state in real time by communicating with the Game Board Manager.

@@ -1,3 +1,4 @@
+from typing import Optional
 from Game_Engine.Space import Space
 from Game_Engine.Player import Player
 
@@ -29,10 +30,17 @@ class Property(Space):
         Space.__init__(self, name, property_type, color)
         self._price = price
         self._owner = None
+        self._owned = False
 
         if property_type == "property":
             self._rent_values = rent_values
             self._num_houses = 0
+        
+    def is_owned(self) -> bool:
+        if self._owner is None:
+            return False
+        else:
+            return True
 
     def action(self, player: Player) -> None:
         """
@@ -47,11 +55,10 @@ class Property(Space):
         Args:
             player: The player that has landed on the property.
         """
-        if self._owner is None:
-            if player.balance >= self._price:
-                # TODO Prompt user to choose whether they want to purchase
-                player.balance -= self._price
-                self._owner = player
+        if not self.is_owned():
+            self.change_owner(player)
+            player.decrease_balance(self.price)
+            self._owner = player
         elif self._owner is not player:
             rent = self._calculate_rent(player)
             player.transfer_money(self._owner, rent)
@@ -84,6 +91,10 @@ class Property(Space):
             multiplier = 4 if player.owns_both_utilities() else 10
             return multiplier * player.last_roll
     
+    def change_owner(self,player:Player) -> None:
+        self._owner = player
+
+    
     @property
     def name(self) -> str:
         return self._name
@@ -99,6 +110,20 @@ class Property(Space):
     @property
     def price(self) -> int:
         return self._price
+    
+    @property
+    def owner_name(self) -> Optional[str]:
+        if self._owner is not None:
+            return self._owner.name
+        else:
+            return None
+        
+    @property
+    def owner(self) -> Optional[Player]:
+        if self._owner is not None:
+            return self._owner
+        else:
+            return None
 
 
 

@@ -17,10 +17,6 @@
 # Update Property
 # Not in the SDD but we should have a method that updates the property of the player
 
-
-# from Game_Engine.Property import Property
-
-
 import functools, time
 
 
@@ -65,6 +61,9 @@ class Player:
         if self._balance >= amount:
             self._balance -= amount
             owner.balance += amount
+    
+    def add_property(self, property_item):
+        self._assets.append(property_item)
 
     def is_bankrupt(self) -> bool:
         return self._balance < 0
@@ -90,6 +89,14 @@ class Player:
     # def add_property(self, property: Property) -> None:
     #     self._properties.append(property)
 
+
+    @property
+    def assets(self):
+        return
+
+    @property
+    def name(self) -> str:
+        return self._name
 
     @property
     def balance(self) -> int:
