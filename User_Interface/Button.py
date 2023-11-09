@@ -7,10 +7,10 @@ class Button():
 		Modified for Cloneopoly \n
 		Allows for the making of buttons for the game's User Interface
 	"""
-	def __init__(self, image , pos, text_input, font, base_color, hover_color):
+	def __init__(self, pos, text_input, font, base_color, hover_color , image = None):
 		"""
-			image: Background Image file for the Button may be None
 			pos: Screen Cordinates for Button, ints, (x,y) format
+			image: Background Image file for the Button may be None
 			text_input: Buttton Text
 			font: Pygame Font object for text
 			base_color: The color that the button will appear as when not being selected
@@ -27,7 +27,8 @@ class Button():
 			self.image = self.text
 		self.rect = self.image.get_rect(center = (self.x_pos, self.y_pos))
 		self.text_rect = self.text.get_rect(center= (self.x_pos,self.y_pos))
-		
+	
+
 	def update(self,screen):
 		"""
 			Updates Button to show render in current screen, or updates if any change is made to Button
@@ -57,3 +58,23 @@ class Button():
 			self.text = self.font.render(self.text_input, True, self.hover_color)
 		else:
 			self.text = self.font.render(self.text_input, True, self.base_color)
+
+
+class ImageButton(Button):
+	"""
+		Button subclass designede for Image Only Buttons
+	"""
+	def __init__(self, pos, image):
+		"""
+			Button Constructor for an Image only Button
+			pos: Screen Cordinates for Button, ints, (x,y) format1
+			image: Background Image file location for the Button
+		"""
+		self.image = image
+		self.x_pos = pos[0]
+		self.y_pos = pos[1]
+		self.rect = self.image.get_rect(center = (self.x_pos, self.y_pos))
+
+	def update(self, screen):
+		screen.blit(self.image, self.rect)
+	

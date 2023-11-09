@@ -83,12 +83,12 @@ class Gameboard:
         """
         self._players.append(player)
 
-    def _roll_dice(self) -> int:
+    def roll_dice(self) -> tuple[int, int]:
         """
         Simulates rolling dice and returns the result as a random number
         between 1 and the number of sides on a dice (6 in Monopoly).
         """
-        return random.randint(1, 6)
+        return (random.randint(1, 6), random.randint(1, 6))
 
     def _play_turn(self, player: Player) -> None:
         """
@@ -101,10 +101,6 @@ class Gameboard:
         Args:
             player: The current player.
         """
-        roll1 = self._roll_dice()
-        roll2 = self._roll_dice()
-
-        position = player.move(roll1 + roll2)
         self._board[position].action(player)
 
 
