@@ -21,7 +21,7 @@ import functools, time,pygame
 
 
 class Player:
-    def __init__(self, name: str, token:pygame.Surface, property_size) -> None:
+    def __init__(self, name: str, token:pygame.Surface, property_size, player_number) -> None:
         self._name = name
         self.token = token
         self._balance = 1500

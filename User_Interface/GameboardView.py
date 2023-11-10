@@ -89,9 +89,9 @@ class GameboardView:
                         hex_to_rgb("#171717"),
                         (x, y, int(self.property_size), int(self.property_size * 2)), width = self.border_width
                     )
-            
-    def render_player_move(self, player: Player, distance:int):
-         for step in range(distance):
+
+    def render_player_move(self,players, player: Player, distance: int):
+        for step in range(distance):
             # Calculate the next position based on the step
             if player._position_y == self.property_size * 11:
                 if player._position_x == self.property_size:
@@ -109,30 +109,44 @@ class GameboardView:
                 else:
                     next_x, next_y = player._position_x, player._position_y + self.property_size
 
-            self.screen.blit(self.board_surface, (player._position_x, player._position_y), (player._position_x, player._position_y, player.token.get_width(), player.token.get_height()))
-
-            # Update player's position
+            # Move the player to the next position
             player._position_x, player._position_y = next_x, next_y
+
+            # Redraw the entire board
+            self.draw_board(players)
 
             # Blit the player's token at the new position
             self.screen.blit(player.token, (player._position_x, player._position_y))
 
             # Update the display
             pygame.display.update()
+
+            # Delay for a short period
             pygame.time.delay(250)
-    
+
+    def draw_board(self,players):
+        # Redraw the entire board (you may need to adapt this based on your implementation)
+        self.screen.blit(self.board_surface, (0, 0))
+        # Add code to redraw any other elements on the board
+
+        # Add code to redraw all player tokens at their current positions
+        for player in players:
+            self.screen.blit(player.token, (player._position_x, player._position_y))
+
+
+
     def initialize_players(self, number_players) -> list[Player]:
         players = []
 
         tokens = (pygame.transform.smoothscale(pygame.image.load(os.path.join("assets", "images", "car.png")).convert_alpha(),(35,35)),
                     pygame.transform.smoothscale(pygame.image.load(os.path.join("assets", "images", "penguin.png")).convert_alpha(),(35,35)) )
 
-        player_one = Player("Michel", tokens[0], self.property_size)
-        player_two = Player("Luis", tokens[1], self.property_size)
+        player_one = Player("Michel", tokens[0], self.property_size,0)
+        player_two = Player("Luis", tokens[1], self.property_size,1)
 
         # Set initial positions on the board
         player_one.set_position(self.property_size * 11, self.property_size * 11)
-        player_two.set_position(self.property_size * 11, self.property_size * 12)  # Adjust the position as needed
+        player_two.set_position(self.property_size * 11, self.property_size * 11)
 
         players.append(player_one)
         players.append(player_two)
@@ -143,7 +157,6 @@ class GameboardView:
 
         pygame.display.flip()
         return players
-
 
     def main_loop_screen(self,number_players: int):
         players = self.initialize_players(number_players)
@@ -175,7 +188,7 @@ class GameboardView:
                         self.screen.fill((255, 255, 255), display_surface_rect)
                         dice_rolls = self.gameboard.roll_dice()
                         player_position = players[current_player_index].move(sum(dice_rolls))
-                        self.render_player_move(players[current_player_index], dice_rolls[0] + dice_rolls[1])
+                        self.render_player_move(players,players[current_player_index] ,dice_rolls[0] + dice_rolls[1])
                         for index, roll in enumerate(dice_rolls):
                             self.screen.blit(dice_surfaces[roll - 1], (self.screen.get_width() / (1.65 - index * 0.12), self.screen.get_height() / 1.25))
                         self.display_action(players[current_player_index], player_position)
@@ -302,7 +315,6 @@ def _display_square_action(screen:pygame.Surface,square_object:Square, player:Pl
     font = pygame.font.Font(os.path.join("assets","images", "Minecraft.ttf"), 30)
     clock = pygame.time.Clock()
     run = True
-    print("in square action")
     while run:
         if square_object.square_type == "corner":
             if square_object.name == "Go":
