@@ -4,10 +4,12 @@
 
 # TO DO: Agree on short cut names for imports
 import pygame, os
+import  tkinter as tk
 from Game_Engine.GameboardManager import Gameboard
 from User_Interface.GameboardView import GameboardView
 from Game_Engine.Player import Player
 import User_Interface.MenuView as mv
+from User_Interface.PlayerInfoView import PlayerInfoView
 
 pygame.init()
 # Constants
@@ -69,6 +71,15 @@ def title_menu():
     """
     menu_choice = mv.main_menu(SCREEN, FPS)
     return menu_choice
+
+def PlayerView():
+    root = tk.Tk()
+    root.title("Cloneopoly Game")
+    dice_img = pygame.transform.smoothscale(pygame.image.load(os.path.join("assets", "images", "dice.png")), (50, 50))
+    player_1 = Player("Teee",dice_img,0,0)
+    # Create PlayerView instances for each player
+    player1_view = PlayerInfoView(root, player_1)
+    #player2_view = PlayerInfoView(root, "Player 2")
 
 
 # TO DO Move Functionality below to GameboardView
