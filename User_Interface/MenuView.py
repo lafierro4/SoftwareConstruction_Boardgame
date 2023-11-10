@@ -34,7 +34,7 @@ def main_menu(SCREEN: pygame.Surface,FPS) -> int:
     clock = pygame.time.Clock()
     while run:
         mouse_pos = pygame.mouse.get_pos()
-        menu_text = title_font.render("Cloneopoly", True, "black")
+        menu_text = title_font.render("", True, "black")
         menu_text_rect = menu_text.get_rect(center = (SCREEN.get_size()[0]/2, SCREEN.get_size()[1]/5))
       
         play_button = Button(image = None, pos=(SCREEN.get_size()[0]/2, SCREEN.get_size()[1]/3), text_input= "Play", font= button_font , base_color="#39FF14", hover_color= "#0a18f3")
