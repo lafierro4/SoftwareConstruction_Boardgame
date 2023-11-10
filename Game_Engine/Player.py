@@ -17,14 +17,13 @@
 # Update Property
 # Not in the SDD but we should have a method that updates the property of the player
 
-import functools, time
+import functools, time,pygame
 
 
 class Player:
-    def __init__(self, name: str, token, property_size) -> None:
+    def __init__(self, name: str, token:pygame.Surface, property_size) -> None:
         self._name = name
         self.token = token
-        self.current_space = 0
         self._balance = 1500
         self._assets = []
         self._position = 0
@@ -54,6 +53,10 @@ class Player:
         self._last_roll = steps
         return self._position
 
+    def set_position(self, x, y):
+        self._position_x = x
+        self._position_y = y
+    
     def transfer_money(self, owner, amount: int) -> None:
         """
         Pays rent out to a property owner.
@@ -61,7 +64,7 @@ class Player:
         if self._balance >= amount:
             self._balance -= amount
             owner.balance += amount
-    
+
     def add_property(self, property_item):
         self._assets.append(property_item)
 

@@ -74,7 +74,7 @@ def title_menu():
 
 def initialize_gameboard():
     # Initialize the board
-    SCREEN.fill("black")
+    SCREEN.fill("white")
     gameboard_view = gv.GameboardView(SCREEN)
     gameboard_view.setup_board()
     pygame.display.update()

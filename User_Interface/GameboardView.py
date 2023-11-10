@@ -90,16 +90,8 @@ class GameboardView:
                         (x, y, int(self.property_size), int(self.property_size * 2)), width = self.border_width
                     )
             
-    def render_player_move(self, player: Player, dice_rolls:tuple[int,int],dice_surfaces):
-         distance = dice_rolls[0] + dice_rolls[1]
+    def render_player_move(self, player: Player, distance:int):
          for step in range(distance):
-            # erase board
-            self.screen.blit(self.board_surface, (0, 0))
-            for index, roll in enumerate(dice_rolls):
-                self.screen.blit(dice_surfaces[roll - 1], (self.screen.get_width() / (1.65 - index * 0.12), self.screen.get_height() / 1.30))
-
-            token_rect = player.token.get_rect()
-
             # Calculate the next position based on the step
             if player._position_y == self.property_size * 11:
                 if player._position_x == self.property_size:
@@ -117,48 +109,83 @@ class GameboardView:
                 else:
                     next_x, next_y = player._position_x, player._position_y + self.property_size
 
-            token_rect.topleft = (next_x, next_y)
-            player._position_x = token_rect.x
-            player._position_y = token_rect.y
-            self.screen.blit(player.token, token_rect)
+            self.screen.blit(self.board_surface, (player._position_x, player._position_y), (player._position_x, player._position_y, player.token.get_width(), player.token.get_height()))
+
+            # Update player's position
+            player._position_x, player._position_y = next_x, next_y
+
+            # Blit the player's token at the new position
+            self.screen.blit(player.token, (player._position_x, player._position_y))
+
+            # Update the display
             pygame.display.update()
             pygame.time.delay(250)
+    
+    def initialize_players(self, number_players) -> list[Player]:
+        players = []
+
+        tokens = (pygame.transform.smoothscale(pygame.image.load(os.path.join("assets", "images", "car.png")).convert_alpha(),(35,35)),
+                    pygame.transform.smoothscale(pygame.image.load(os.path.join("assets", "images", "penguin.png")).convert_alpha(),(35,35)) )
+
+        player_one = Player("Michel", tokens[0], self.property_size)
+        player_two = Player("Luis", tokens[1], self.property_size)
+
+        # Set initial positions on the board
+        player_one.set_position(self.property_size * 11, self.property_size * 11)
+        player_two.set_position(self.property_size * 11, self.property_size * 12)  # Adjust the position as needed
+
+        players.append(player_one)
+        players.append(player_two)
+
+        # Draw initial positions of players on the board
+        self.screen.blit(tokens[0], (player_one._position_x, player_one._position_y))
+        self.screen.blit(tokens[1], (player_two._position_x, player_two._position_y))
+
+        pygame.display.flip()
+        return players
+
 
     def main_loop_screen(self,number_players: int):
-        player_one = initialize_player(self.screen, "michel", os.path.join("assets", "images", "car.png"), self)
-        dice_img = pygame.transform.smoothscale(pygame.image.load(os.path.join("assets", "images", "dice.png")),(50,50))
-        #option_img = pygame.transform.smoothscale(pygame.image.load(os.path.join("assets", "images", "settings.png")),(50,50))
-        dice_button = ImageButton(((self.screen.get_width() / 1.75), (self.screen.get_height() / 1.25)), dice_img)
-        #option_button = ImageButton(((self.screen.get_width() - 25), 25), option_img)
-        dice_surfaces = list(map(lambda index: pygame.transform.smoothscale(pygame.image.load(os.path.join("assets", "images", f"dice_{index}.png")), (50, 50)), range(1,7)))
-
+        players = self.initialize_players(number_players)
+        dice_img = pygame.transform.smoothscale(pygame.image.load(os.path.join("assets", "images", "dice.png")), (50, 50))
+        dice_button = ImageButton(((self.screen.get_width() / 1.75), (self.screen.get_height() / 1.20)), dice_img)
+        dice_surfaces = [pygame.transform.smoothscale(pygame.image.load(os.path.join("assets", "images", f"dice_{index}.png")), (50, 50)) for index in range(1, 7)]
+        font = pygame.font.Font(os.path.join("assets","images", "Minecraft.ttf"), 35)
         run = True
         clock = pygame.time.Clock()
+        current_player_index = 0
+
         while run:
             mouse_pos = pygame.mouse.get_pos()
 
             dice_button.update(self.screen)
-            #option_button.update(self.screen)
 
+            display_surface = pygame.Surface(size=(self.screen.get_width() / 2.25, self.screen.get_height() / 1.75))
+            display_surface_rect = display_surface.get_rect(center=(self.screen.get_width() / 1.35, self.screen.get_height() / 2))
+
+            turn_text = font.render(f"{players[current_player_index]._name}'s Turn, Roll Those Dice!", True, hex_to_rgb("#000000"))
+            turn_text_rect = turn_text.get_rect(center=(self.screen.get_width() / 1.35, self.screen.get_height()/3.5))
+            self.screen.blit(turn_text, turn_text_rect)
+            
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     run = False
                 if event.type == pygame.MOUSEBUTTONDOWN:
-                    # Moves player with each click the amount of spaces indicated
                     if event.button == 1 and dice_button.checkForInput(mouse_pos):
+                        self.screen.fill((255, 255, 255), display_surface_rect)
                         dice_rolls = self.gameboard.roll_dice()
-                        player_position = player_one.move(sum(dice_rolls))
-                        self.render_player_move(player_one, dice_rolls, dice_surfaces)
+                        player_position = players[current_player_index].move(sum(dice_rolls))
+                        self.render_player_move(players[current_player_index], dice_rolls[0] + dice_rolls[1])
                         for index, roll in enumerate(dice_rolls):
-                            self.screen.blit(dice_surfaces[roll - 1], (self.screen.get_width() / (1.65 - index * 0.12), self.screen.get_height() / 1.30))
-                        self.display_action(player_one, player_position)
-                    #elif event.button == 1 and option_button.checkForInput(mouse_pos):
-                        #options_menu(self.screen)
-                      
+                            self.screen.blit(dice_surfaces[roll - 1], (self.screen.get_width() / (1.65 - index * 0.12), self.screen.get_height() / 1.25))
+                        self.display_action(players[current_player_index], player_position)
+                        current_player_index = (current_player_index + 1) % len(players)  
+
             pygame.display.update()
             clock.tick(FPS)
         
-        return 0
+        pygame.quit()
+        quit()
 
 
     def display_action(self,player:Player, square_index):
@@ -172,20 +199,8 @@ class GameboardView:
             _display_square_action(self.screen,current_space,player)
 
         return
-
-
-
-# TO DO Move Functionality below to GameboardView
-def initialize_player(SCREEN, name, image, gameboard_view):
-    # create a surface object, image is drawn on it.
-    token = pygame.image.load(image).convert_alpha()
-    # Scale the image
-    token = pygame.transform.scale(token, (40, 40))
     
-    player_one = Player(name, token, gameboard_view.property_size)
-    # Draw initial position of player on board
-    SCREEN.blit(token, (player_one._position_x, player_one._position_y))
-    return player_one
+   
 
 
 def _display_property_action(screen:pygame.Surface,property_object:Property,player:Player):
@@ -250,15 +265,19 @@ def _display_property_action(screen:pygame.Surface,property_object:Property,play
                         print("no")
                         return
         elif property_object.owner is not player:
+            property_object.action(player)
             action = [(f"Player {property_object.owner_name}"),
                        (f"owns {property_object.name},"),
-                      (f"pay ${property_object._rent_values}")]
+                      (f"pay ${property_object._rent_values}"),
+                      (f"{player.name}'s new Balance ${player.balance}")]
             action_text = [font.render(action[0], True, hex_to_rgb("#000000")), 
                            font.render(action[1], True, hex_to_rgb("#000000")), 
-                           font.render(action[2], True, hex_to_rgb("#000000")) ]
+                           font.render(action[2], True, hex_to_rgb("#000000")),
+                           font.render(action[3], True, hex_to_rgb("#000000")), ]
             action_text_rect = [action_text[0].get_rect(center=(screen.get_width() / 1.35, screen.get_height()/2.75)),
                                 action_text[1].get_rect(center=(screen.get_width() / 1.35, screen.get_height()/2.50)),
-                                action_text[2].get_rect(center=(screen.get_width() / 1.35, screen.get_height()/2.25))]
+                                action_text[2].get_rect(center=(screen.get_width() / 1.35, screen.get_height()/2.25)),
+                                action_text[3].get_rect(center=(screen.get_width() / 1.35, screen.get_height()/2.00)),]
             for surface,rect in zip(action_text, action_text_rect):
                 screen.blit(surface,rect)
             for event in pygame.event.get():
