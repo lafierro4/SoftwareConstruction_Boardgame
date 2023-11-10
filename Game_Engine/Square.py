@@ -51,12 +51,14 @@ class Square(Space):
         Args:
             player (Player): The player that has landed on the tax square.
         """
+        player.decrease_balance(int(player.balance * 0.1))
+        return
         # TODO Determine if user wants to pay $200 or 10%
-        choice = "percentage" if player.balance < 200 else "fixed"
-        if choice == "fixed":
-            player.balance -= 200
-        else:
-            player.balance -= int(player.calculate_assets() * 0.1)
+        #choice = "percentage" if player.balance < 200 else "fixed"
+        #if choice == "fixed":
+        #    player.decrease_balance(200)
+       # else:
+        
 
     @property
     def name(self) -> str:

@@ -66,7 +66,7 @@ def title_menu():
     Starts the Main Menu Screen from MenuView \n
     Returns a status code with the user's choice
     """
-    menu_choice = mv.main_menu(SCREEN, FPS)
+    menu_choice = mv.main_menu(SCREEN)
     return menu_choice
 
 
@@ -75,10 +75,10 @@ def title_menu():
 def initialize_gameboard():
     # Initialize the board
     SCREEN.fill("black")
-    gameboard_view = gv.GameboardView()
-    gameboard_view.setup_board(SCREEN)
+    gameboard_view = gv.GameboardView(SCREEN)
+    gameboard_view.setup_board()
     pygame.display.update()
-    gameboard_view.main_loop_screen(SCREEN,1)
+    gameboard_view.main_loop_screen(1)
     
 
     

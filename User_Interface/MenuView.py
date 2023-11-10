@@ -12,8 +12,9 @@ pygame.init()
 # Post-Condition: \@ensures self.ui.display_updated_settings() 
 # Method Signature: def display_choice(self) -> None: 
 
+FPS = 60
 
-def main_menu(SCREEN: pygame.Surface,FPS) -> int:
+def main_menu(SCREEN: pygame.Surface) -> int:
     """
         The Main Menu Screen.
         Gives the User Options at the start up of game.\n
@@ -60,21 +61,20 @@ def main_menu(SCREEN: pygame.Surface,FPS) -> int:
                     pygame.mixer.music.stop()
                     return 1
                 if options_button.checkForInput(mouse_pos):
-                    options_menu(SCREEN,FPS)
+                    options_menu(SCREEN)
                 if quit_button.checkForInput(mouse_pos):
                     run = False
         pygame.display.update()
         clock.tick(FPS)
     pygame.quit()
     quit()
-    return 0
 
-def options_menu(SCREEN: pygame.Surface, FPS):
+def options_menu(SCREEN: pygame.Surface):
 
     SCREEN.fill("white")
     default_size = (1280, 720)
-    window_size_list = [(640, 360), (960,540),(1280,720),(1920,1080)]
-    current_size_index = 2
+    window_size_list = [(1280,720),(1920,1080)]
+    current_size_index = 0
     for index, size in enumerate(window_size_list):
         if pygame.display.get_window_size() == size:
             current_size_index = index
@@ -132,4 +132,3 @@ def options_menu(SCREEN: pygame.Surface, FPS):
         clock.tick(FPS)
     pygame.quit()
     quit()
-    return 
