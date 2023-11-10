@@ -1,14 +1,23 @@
-# Property
-# Simulates a property that is on the board, allowing for the management of property ownership, calculating rent, and handling property development.
-
-from Game_Engine.Square import Square
+from typing import Optional
+from Game_Engine.Space import Space
 from Game_Engine.Player import Player
 
 
-class Property(Square):
-    """Represents a property square on the Monopoly board."""
+class Property(Space):
+    """
+    Represents a property square on the Monopoly board.
 
-    def __init__(self, name: str, color: str, price: int, rent_values: list[int]):
+    A Property is a broad classification that encompasses a variety of in-game
+    assets, including real estate properties, such as residential houses and
+    commercial buildings, as well as public utilities, like electric and water
+    companies. These assets constitute the primary investment opportunities for
+    players, representing avenues for accumulating wealth, generating rent
+    income, and making strategic financial decisions. The class itself serves
+    as a blueprint for modeling and managing these dynamic and multifaceted
+    components of the game.
+    """
+
+    def __init__(self, name: str, property_type: str, color: str, price: int, rent_values: list[int] = []):
         """
         Initializes a Property object with the specified attributes.
 
@@ -18,11 +27,20 @@ class Property(Square):
             price: The initial purchase value.
             rent_values: List of rent values in ascending order.
         """
-        Square.__init__(self, name, color)
+        Space.__init__(self, name, property_type, color)
         self._price = price
-        self._rent_values = rent_values
-        self._num_houses = 0
         self._owner = None
+        self._owned = False
+
+        if property_type == "property":
+            self._rent_values = rent_values
+            self._num_houses = 0
+        
+    def is_owned(self) -> bool:
+        if self._owner is None:
+            return False
+        else:
+            return True
 
     def action(self, player: Player) -> None:
         """
@@ -37,14 +55,13 @@ class Property(Square):
         Args:
             player: The player that has landed on the property.
         """
-        if self._owner is None:
-            if player.balance >= self._price:
-                # TODO Prompt user to choose whether they want to purchase
-                player.balance -= self._price
-                self._owner = player
+        if not self.is_owned():
+            self.change_owner(player)
+            player.decrease_balance(self.price)
+            self._owner = player
         elif self._owner is not player:
-            rent = self._calculate_rent()
-            player.pay_rent(self._owner, rent)
+            rent = self._calculate_rent(player)
+            player.transfer_money(self._owner, rent)
 
     def build_house(self) -> None:
         """
@@ -55,18 +72,59 @@ class Property(Square):
         """
         pass
 
-    def _calculate_rent(self) -> int:
+    def _calculate_rent(self, player: Player) -> int:
         """
         Determines how much the property's rent costs.
 
-        The price of rent is determined by how many houses have been built on
-        the property. If the owner has built multiple houses, then rent should
-        be increased.
+        For properties, the price of rent is determined by how many houses have
+        been built on the property. If the owner has built multiple houses,
+        then rent should be increased. For utilities, the price of rent is
+        calculated by the total of the dice the player rolled multipled by 4 if
+        the user owns one utility, or 10 if they own both.
 
         Returns:
-            The price of rent adjusted by the number of houses.
+            The price of rent.
         """
-        return self._rent_values[self._num_houses]
+        if self._square_type == "property":
+            return self._rent_values[self._num_houses]
+        else:
+            multiplier = 4 if player.owns_both_utilities() else 10
+            return multiplier * player.last_roll
+    
+    def change_owner(self,player:Player) -> None:
+        self._owner = player
+
+    
+    @property
+    def name(self) -> str:
+        return self._name
+
+    @property
+    def square_type(self) -> str:
+        return self._square_type
+
+    @property
+    def color(self) -> str:
+        return self._color
+
+    @property
+    def price(self) -> int:
+        return self._price
+    
+    @property
+    def owner_name(self) -> Optional[str]:
+        if self._owner is not None:
+            return self._owner.name
+        else:
+            return None
+        
+    @property
+    def owner(self) -> Optional[Player]:
+        if self._owner is not None:
+            return self._owner
+        else:
+            return None
+
 
 
 # Update Property Ownership

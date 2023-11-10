@@ -3,11 +3,12 @@
 # This is where we will have all the pygame components, along with the other UI classes
 
 # TO DO: Agree on short cut names for imports
-import pygame, os
+import pygame, os,random
 from Game_Engine.GameboardManager import Gameboard
-from User_Interface.GameboardView import GameboardView
+import User_Interface.GameboardView as gv
 from Game_Engine.Player import Player
 import User_Interface.MenuView as mv
+from User_Interface.Button import *
 
 pygame.init()
 # Constants
@@ -17,6 +18,7 @@ FPS = 60
 WIDTH, HEIGHT = 1280, 720
 SCREEN = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Cloneopoly")
+
 
 # Initial Board Rendering
 # Collaborates with the GameBoardView to render the Initial Board State.
@@ -37,9 +39,9 @@ pygame.display.set_caption("Cloneopoly")
 # Method Signature: def form_menu(self) -> None:
 
 
-def main_loop():
+def start_game():
     """
-    The Main Game Loop, Checks for Inputs and Transitions to other Screens/Game Loops
+    The Initial Game Loop,
     """
     run = True
     clock = pygame.time.Clock()
@@ -49,17 +51,14 @@ def main_loop():
             run = False
         if return_status == 1:
             return_status = initialize_gameboard()
-        if return_status == 2:
-            pass
-        # We might need this event handler
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
-
         pygame.display.update()
         clock.tick(FPS)
 
     pygame.quit()
+    quit()
 
 
 def title_menu():
@@ -67,49 +66,22 @@ def title_menu():
     Starts the Main Menu Screen from MenuView \n
     Returns a status code with the user's choice
     """
-    menu_choice = mv.main_menu(SCREEN, FPS)
+    menu_choice = mv.main_menu(SCREEN)
     return menu_choice
 
 
-# TO DO Move Functionality below to GameboardView
-def initialize_player(SCREEN, name, image, gameboard_view):
-    # create a surface object, image is drawn on it.
-    token = pygame.image.load(image).convert_alpha()
-    # Scale the image
-    token = pygame.transform.scale(token, (40, 40))
-    
-    player_one = Player(name, token, gameboard_view.property_size)
-    # Draw initial position of player on board
-    SCREEN.blit(token, (player_one._position_x, player_one._position_y))
-    return player_one
 
 
 def initialize_gameboard():
     # Initialize the board
-    run = True
-    clock = pygame.time.Clock()
-    SCREEN.fill("black")
-    gameboard_view = GameboardView(SCREEN)
-    player_one = initialize_player(SCREEN, "michel", os.path.join("assets", "images", "car.png"), gameboard_view)
-    board_setup = gameboard_view.setup_board()
-    gameboard = Gameboard()
-    gameboard.add_player(Player("James", os.path.join("assets", "images", "car.png"), gameboard_view.property_size))
-    gameboard.add_player(Player("Gello", os.path.join("assets", "images", "car.png"), gameboard_view.property_size))
+    SCREEN.fill("white")
+    gameboard_view = gv.GameboardView(SCREEN)
+    gameboard_view.setup_board()
     pygame.display.update()
-    # gameboard.play_game()
+    gameboard_view.main_loop_screen(1)
+    
 
-    while run:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                run = False
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                # Moves player with each click the amount of spaces indicated
-                if event.button == 1:
-                    token_rect = player_one.move_player(SCREEN, gameboard_view, 1)
-
-        pygame.display.update()
-        clock.tick(FPS)
-    return 0
+    
 
 
-main_loop()
+start_game()
