@@ -204,10 +204,7 @@ class GameboardView:
     def display_action(self,player:Player, square_index):
         current_space = self.gameboard._board[square_index]
         if isinstance(current_space,Property):
-            if current_space.square_type == "property":
-                _display_property_action(self.screen,current_space,player)
-            else:
-                print("this is utility")
+            _display_property_action(self.screen,current_space,player)
         elif isinstance(current_space,Square):
             _display_square_action(self.screen,current_space,player)
 
@@ -281,7 +278,7 @@ def _display_property_action(screen:pygame.Surface,property_object:Property,play
             property_object.action(player)
             action = [(f"Player {property_object.owner_name}"),
                        (f"owns {property_object.name},"),
-                      (f"pay ${property_object._rent_values}"),
+                      (f"pay ${property_object.calculate_rent(player)}"),
                       (f"{player.name}'s new Balance ${player.balance}")]
             action_text = [font.render(action[0], True, hex_to_rgb("#000000")), 
                            font.render(action[1], True, hex_to_rgb("#000000")), 

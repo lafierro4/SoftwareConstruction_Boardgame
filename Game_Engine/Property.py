@@ -60,7 +60,7 @@ class Property(Space):
             player.decrease_balance(self.price)
             self._owner = player
         elif self._owner is not player:
-            rent = self._calculate_rent(player)
+            rent = self.calculate_rent(player)
             player.transfer_money(self._owner, rent)
 
     def build_house(self) -> None:
@@ -72,7 +72,7 @@ class Property(Space):
         """
         pass
 
-    def _calculate_rent(self, player: Player) -> int:
+    def calculate_rent(self, player: Player) -> int:
         """
         Determines how much the property's rent costs.
 
