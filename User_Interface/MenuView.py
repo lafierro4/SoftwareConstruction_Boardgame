@@ -40,8 +40,13 @@ def main_menu(SCREEN: pygame.Surface) -> int:
         bg_image = pygame.transform.smoothscale(bg_image, (SCREEN.get_width(), SCREEN.get_height()))
         SCREEN.blit(bg_image,(0,0))
         mouse_pos = pygame.mouse.get_pos()
+
         menu_text = title_font.render("Cloneopoly", True, "black")
         menu_text_rect = menu_text.get_rect(center = (SCREEN.get_width()/2, SCREEN.get_height()/5))
+
+        menu_text = title_font.render("", True, "black")
+        menu_text_rect = menu_text.get_rect(center = (SCREEN.get_size()[0]/2, SCREEN.get_size()[1]/5))
+
       
         play_button = Button(pos=(SCREEN.get_width()/2, SCREEN.get_height()/3), text_input= "Play", font= button_font , base_color="#39FF14", hover_color= "#0a18f3")
         options_button = Button(pos=(SCREEN.get_width()/2, SCREEN.get_height()/3 + 100), text_input= "Options", font= button_font, base_color= "#39FF14", hover_color= "#0a18f3")
