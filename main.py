@@ -1,4 +1,4 @@
-from User_Interface.UIManager import UIManager
+from User_Interface.UIManager import start_game
 
 if __name__ == '__main__':
-    UIManager.run()
+    start_game(4)
