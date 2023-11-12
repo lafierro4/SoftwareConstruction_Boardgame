@@ -3,12 +3,9 @@
 # This is where we will have all the pygame components, along with the other UI classes
 
 # TO DO: Agree on short cut names for imports
-import pygame, os,random
-from Game_Engine.GameboardManager import Gameboard
-import User_Interface.GameboardView as gv
+import pygame
 from Game_Engine.Player import Player
-import User_Interface.MenuView as mv
-from User_Interface.Button import *
+from User_Interface import MenuView, GameboardView, PlayerInfoView, util
 
 pygame.init()
 # Constants
@@ -39,7 +36,7 @@ pygame.display.set_caption("Cloneopoly")
 # Method Signature: def form_menu(self) -> None:
 
 
-def start_game():
+def start_game(number_players):
     """
     The Initial Game Loop,
     """
@@ -50,7 +47,8 @@ def start_game():
         if return_status == 0 or return_status == 3:
             run = False
         if return_status == 1:
-            return_status = initialize_gameboard()
+            player_info = PlayerInfoView.player_select_screen(SCREEN, number_players)
+            initialize_gameboard(player_info)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
@@ -66,22 +64,34 @@ def title_menu():
     Starts the Main Menu Screen from MenuView \n
     Returns a status code with the user's choice
     """
-    menu_choice = mv.main_menu(SCREEN)
+    menu_choice = MenuView.main_menu(SCREEN)
     return menu_choice
 
 
 
+def initialize_players(player_info) -> list[Player]:
+    players = []
+    player_names, player_tokens = player_info
+    space_size = SCREEN.get_width() / 25.6
+    tokens = util.token_image_surface(space_size/1.4)
 
-def initialize_gameboard():
+    for name, token in zip(player_names,player_tokens):
+        player = Player(name,tokens[token],space_size)
+        player.set_position(space_size * 11, space_size * 11)
+        players.append(player)
+        SCREEN.blit(tokens[token], (player._position_x, player._position_y))
+
+    pygame.display.flip()
+    return players
+
+
+def initialize_gameboard(player_info):
     # Initialize the board
     SCREEN.fill("white")
-    gameboard_view = gv.GameboardView(SCREEN)
+    gameboard_view = GameboardView.GameboardView(SCREEN)
     gameboard_view.setup_board()
     pygame.display.update()
-    gameboard_view.main_loop_screen(1)
+    players = initialize_players(player_info)
+    gameboard_view.main_loop_screen(players)
     
 
-    
-
-
-start_game()
