@@ -8,8 +8,8 @@ class TestCases(unittest.TestCase):
 
     
     def test_transfer_money(self):
-        player1 = Player(name="Player1", token=pygame.Surface((50, 50)), property_size=10, player_number=1)
-        player2 = Player(name="Player2", token=pygame.Surface((50, 50)), property_size=10, player_number=2)
+        player1 = Player(name="Player1", token=pygame.Surface((50, 50)), space_size=10)
+        player2 = Player(name="Player2", token=pygame.Surface((50, 50)), space_size=10)
         
         player1.balance = 1000
         player2.balance = 500
@@ -25,7 +25,7 @@ class TestCases(unittest.TestCase):
         self.assertEqual(player2.balance, 700)
 
     def test_add_property(self):
-        player = Player(name="TestPlayer", token=pygame.Surface((50, 50)), property_size=10, player_number=1)
+        player = Player(name="TestPlayer", token=pygame.Surface((50, 50)), space_size=10)
 
         # Test adding a property to the player's assets
         property_item = "Mediterranean Meals"  # You can replace this with an actual Property object
@@ -44,13 +44,13 @@ class TestCases(unittest.TestCase):
         self.assertFalse(property1.is_owned())
 
         # Test when the property has an owner
-        player = Player(name="Owner", token=None, property_size=0, player_number=1) # type: ignore
+        player = Player(name="Owner", token=None, space_size=0) # type: ignore
         property1.change_owner(player)
         self.assertTrue(property1.is_owned())
 
     def test_calculate_rent_property(self):
         # Create a Player instance for testing
-        player_instance = Player(name="TestPlayer", token=None, property_size=10, player_number=1) # type: ignore
+        player_instance = Player(name="TestPlayer", token=None, space_size=10) # type: ignore
 
         # Create a Property instance with rent values [100, 200, 300]
         property_instance = Property(name="TestProperty", property_type="property", color="#FF0000", price=500, rent_values=[100, 200, 300])
@@ -62,13 +62,13 @@ class TestCases(unittest.TestCase):
         property_instance._num_houses = 2
 
         # Call _calculate_rent and assert the result
-        result = property_instance._calculate_rent(player_instance)
+        result = property_instance.calculate_rent(player_instance)
         self.assertEqual(result, 300)  # Expecting the third value in the rent_values list
     
     def test_action_property_owned_by_other_player(self):
         # Create two Player instances for testing
-        player_instance_1 = Player(name="TestPlayer1", token=None, property_size=10, player_number=1) # type: ignore
-        player_instance_2 = Player(name="TestPlayer2", token=None, property_size=10, player_number=2) # type: ignore
+        player_instance_1 = Player(name="TestPlayer1", token=None, space_size=10) # type: ignore
+        player_instance_2 = Player(name="TestPlayer2", token=None, space_size=10) # type: ignore
         player_instance_1.balance = 1000  # Set an initial balance for player 1
 
         # Create a Property instance with dummy values
@@ -78,7 +78,7 @@ class TestCases(unittest.TestCase):
         property_instance.is_owned = lambda: True
 
         # Mock the _calculate_rent and transfer_money methods
-        property_instance._calculate_rent = lambda player: 100  # Assume a fixed rent value
+        property_instance.calculate_rent = lambda player: 100  # Assume a fixed rent value
         player_instance_1.transfer_money = lambda owner, amount: setattr(player_instance_1, "_balance", player_instance_1.balance - amount)
 
         # Set the property owner to player 2

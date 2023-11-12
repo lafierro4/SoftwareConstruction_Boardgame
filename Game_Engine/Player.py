@@ -1,11 +1,5 @@
 # Player
-# Represent individual players in the game, storing their assets, financial status, and property holdings.
-
-# class Player:
-# money, connect to bank
-# list of Properties, connect to Property
-# name
-# token
+# Represent individual players in the game, storing their assets, financial status, and property holdings. 
 
 # Update Player Funds
 # Change the amount of money the player has and perform any actions as a result of reaching this new amount.
@@ -13,9 +7,17 @@
 # Post-Condition: \@ensures self.funds == new_amount
 # Method signature: def update_funds(self, new_amount) -> None:
 
+    # Move Player  
+    # Move the player in the game board. 
+    # Pre-Condition: \@requires distance > 0 
+    # Post-Condition: \@ensures token_rect.move_ip(self._position_x,self._position_y - game_board.property_size) 
+    # Method signature: def move_player(self, win, game_board, distance): 
 
-# Update Property
-# Not in the SDD but we should have a method that updates the property of the player
+    #Handle Bankruptcy 
+    #Manage the transfer of rent payments from players to the property owner. 
+    #  Pre-Condition: @requires player is not None 
+    #  Post-Condition: @ensures (\forall property in \old(player.properties): property.owner != player) 
+    # Method signature: def handle_bankruptcy (self, player: Player) -> None: 
 
 import functools ,pygame
 
@@ -88,10 +90,6 @@ class Player:
     
     def owns_both_utilities(self) -> bool:
         return sum(asset.square_type == "utility" for asset in self._assets) >= 2
-
-    # def add_property(self, property: Property) -> None:
-    #     self._properties.append(property)
-
 
     @property
     def assets(self):

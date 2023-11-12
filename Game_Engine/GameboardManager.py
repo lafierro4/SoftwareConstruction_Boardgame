@@ -65,8 +65,7 @@ class Gameboard:
             Square("Luxury Tax", "tax"),
             Property("Bored Walk", "property", "#e34537", 400, [50, 200, 600, 1400, 1700, 2000]),
         ]
-
-    
+    #REVIEW IF THIS IS NEEDED - LF
     def add_player(self, player: Player) -> None:
         """
         Adds a player to the gameboard.
@@ -84,30 +83,14 @@ class Gameboard:
         random.seed()
         return (random.randint(1, 6), random.randint(1, 6))
 
-    # def _play_turn(self, player: Player) -> None:
-     #   """
-      #  Handles the current player's turn.
-    #
-    #       Begins by rolling the die twice and moving the player the sum of both
-    #      values. Based off the player's new position, the action correponding to
-    #     landed square is ran.
-    #    Args:
-    #       player: The current player.
-    #   """
-    #   self._board[position].action(player)
-    # def play_game(self) -> None:
-    #    """Simulates the main game loop."""
-     #   while len(self._players) > 1:
-      #      for player in self._players:
-       #         self._play_turn(player)
-        #        if player.is_bankrupt():
-         #           self._players.remove(player)
-
-    #
-
-
 # Handle Turn Base Action
 # Responsible for coordinating player actions during their turns by controlling the sequence of player turns and game events.
 # Pre-Condition: \@require self.game_running == True
 # Post-Condition: \@ensures self.current_player_index == \old(self.current_player_index) + 1
 # Method Signature: def handle_turn(self) -> None:
+
+   # Roll Dice 
+    #Simulates rolling dice and returns the result as a random number between 1 and the number of sides on a dice (6 in Monopoly). 
+    #   Pre-Condition: \@requires self.seed is not None 
+    #  Post-Condition: \@ensures \result >= 1 and \result <= 6 
+   # Method signature: def roll_dice(self) -> int: 

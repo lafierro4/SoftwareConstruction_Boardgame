@@ -7,13 +7,10 @@ import pygame
 from Game_Engine.Player import Player
 from User_Interface import MenuView, GameboardView, PlayerInfoView, util
 
+# Initialze Pygame Window and sets the default window size to be 1280 by 720
 pygame.init()
-# Constants
-# FPS = the refresh rate of the in frames per second
-# SCREEN = the surface layer of the pygame window, the main layer
 FPS = 60
-WIDTH, HEIGHT = 1280, 720
-SCREEN = pygame.display.set_mode((WIDTH, HEIGHT))
+SCREEN = pygame.display.set_mode((1280, 720))
 pygame.display.set_caption("Cloneopoly")
 
 

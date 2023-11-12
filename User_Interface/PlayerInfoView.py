@@ -1,5 +1,6 @@
 # PlayerInfoView
 # Displays player-specific information, including names, financial status, and property ownership. Ensures player’s data is accurately presented to the user.
+# PlayerSelectBox is a class designed to allow the user to create multiple Players at once, with text input and a token selection  wheel.
  
 # Show Property Details
 # Communicates with any Property to display its information when a player selects it. (Owned by them, someone else, Or no one)
@@ -20,7 +21,7 @@ class PlayerSelectBox:
         self.font = font
         self.input_text = ""
         self.active = False
-        self.character_limit = 10
+        self.character_limit = 8
 
         button_size = height
         space_buffer = button_size * 2
@@ -45,11 +46,7 @@ class PlayerSelectBox:
             else:
                 self.active = False
         elif event.type == pygame.KEYDOWN and self.active:
-            if event.key == pygame.K_RETURN:
-                # Do something with the entered text if needed
-                print("Player Name:", self.input_text)
-                self.input_text = ""
-            elif event.key == pygame.K_BACKSPACE:
+            if event.key == pygame.K_BACKSPACE:
                 self.input_text = self.input_text[:-1]
             else:
                 if len(self.input_text) < self.character_limit:
