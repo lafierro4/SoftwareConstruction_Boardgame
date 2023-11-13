@@ -10,6 +10,7 @@ class Space(ABC):
         self._square_type = square_type
         self._color = color
 
+
     @abstractmethod
     def action(self, player: Player) -> None:
         """

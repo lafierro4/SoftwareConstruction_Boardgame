@@ -1,6 +1,7 @@
 from typing import Optional
 from Game_Engine.Space import Space
 from Game_Engine.Player import Player
+from PIL import Image, PngImagePlugin
 
 
 class Property(Space):
@@ -17,7 +18,7 @@ class Property(Space):
     components of the game.
     """
 
-    def __init__(self, name: str, property_type: str, color: str, price: int, rent_values: list[int] = []):
+    def __init__(self, name: str, property_type: str, color: str, price: int, image: Image.Image, rent_values: list[int] = []):
         """
         Initializes a Property object with the specified attributes.
 
@@ -28,6 +29,7 @@ class Property(Space):
             rent_values: List of rent values in ascending order.
         """
         Space.__init__(self, name, property_type, color)
+        self.image = image
         self._price = price
         self._owner = None
         self._owned = False
@@ -94,7 +96,9 @@ class Property(Space):
     def change_owner(self,player:Player) -> None:
         self._owner = player
 
-    
+    def get_image(self):
+        return self.image
+
     @property
     def name(self) -> str:
         return self._name
@@ -125,7 +129,9 @@ class Property(Space):
         else:
             return None
 
-
+    @property
+    def image_path(self):
+        return self.image_path
 
 # Update Property Ownership
 # Handles the transfer of property ownership by switching the owner to a different player.
