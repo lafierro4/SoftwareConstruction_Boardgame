@@ -115,7 +115,6 @@ class GameboardView:
             self.screen.blit(player.token, (player._position_x, player._position_y))
             
     def main_loop_screen(self,players: list[Player]):
-        
         text_font = pygame.font.Font(os.path.join("assets","images", "Minecraft.ttf"), 35)
         button_font = pygame.font.Font(os.path.join("assets","images", "Minecraft.ttf"), 20)
         dice_img = pygame.transform.smoothscale(pygame.image.load(os.path.join("assets", "images", "dice.png")), (50, 50))
@@ -134,9 +133,7 @@ class GameboardView:
 
         while run:
             mouse_pos = pygame.mouse.get_pos()
-
             dice_button.update(self.screen)
-
             for button in player_info_buttons:
                 button.change_color(mouse_pos)
                 button.update(self.screen)
@@ -160,13 +157,9 @@ class GameboardView:
                             current_player_index = (current_player_index + 1) % len(players)
                         for index,button in enumerate(player_info_buttons):
                             if button.check_clicked(mouse_pos):
-                                print(f"clicked on{players[index].name}")
                                 display_player_info(player= players[index])
-                    
-
             pygame.display.update()
             clock.tick(FPS)
-        
         pygame.quit()
         quit()
 
@@ -177,11 +170,9 @@ class GameboardView:
             _display_property_action(self.screen,current_space,player)
         elif isinstance(current_space,Square):
             _display_square_action(self.screen,current_space,player)
-
         return
     
-   
-
+# Long Method, idk how we can split it
 def _display_property_action(screen:pygame.Surface,property_object:Property,player:Player):
     font = pygame.font.Font(os.path.join("assets","images", "Minecraft.ttf"), 30)
     clock = pygame.time.Clock()
@@ -211,6 +202,7 @@ def _display_property_action(screen:pygame.Surface,property_object:Property,play
                         if player.balance >= property_object.price:
                             property_object.action(player)
                             player.add_property(property_object)
+                            #Move Action phrases to Property action method
                             action = [(f"Player {player.name} bought"),
                                         (f"{property_object.name} for ${property_object.price}!"),
                                         (f"New Balance ${player.balance}")]
@@ -232,7 +224,6 @@ def _display_property_action(screen:pygame.Surface,property_object:Property,play
                                 screen.blit(surface,rect)
                             return
                     elif no_button.check_clicked(mouse_pos):
-                        print("no")
                         return
         elif property_object.owner is not player:
             property_object.action(player)

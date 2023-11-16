@@ -32,6 +32,7 @@ pygame.display.set_caption("Cloneopoly")
 # Post-Condition: \@ensures self.ui.display_menu()
 # Method Signature: def form_menu(self) -> None:
 
+#This whole class is a middleman, its not even a class really, 
 
 def start_game(number_players):
     """
