@@ -13,25 +13,6 @@ FPS = 60
 SCREEN = pygame.display.set_mode((1280, 720))
 pygame.display.set_caption("Cloneopoly")
 
-
-# Initial Board Rendering
-# Collaborates with the GameBoardView to render the Initial Board State.
-# Pre-Condition: \@requires self.ui.board.is_rendered == False
-# Post-Condition: \@ensures self.ui.board.is_rendered == True
-# Method Signature: def render_initial_board(self) -> None:
-
-# Player Info Display
-# Informs PlayerView how to display the Player’s status and information.
-# Pre-Condition: \@requires self.is_valid_status(player_status) == True
-# Post-Condition: \@ensures self.ui.display_status()
-# Method Signature: def display_player_status(self) -> None:
-
-# Menu Management
-# Helps layer the Menu assets to display the correct formatting
-# Pre-Condition: \@requires self.is_layered_menu() == True
-# Post-Condition: \@ensures self.ui.display_menu()
-# Method Signature: def form_menu(self) -> None:
-
 #This whole class is a middleman, its not even a class really, 
 
 def start_game(number_players):
@@ -40,13 +21,16 @@ def start_game(number_players):
     """
     run = True
     clock = pygame.time.Clock()
-    return_status = title_menu()
+    menu_results = title_menu()
+    is_ai = False
+    number_of_humans = menu_results[0] # type: ignore
+    number_of_bots = menu_results[1] # type: ignore
+    number_players = number_of_humans + number_of_bots
+    if number_of_bots > 0:
+        is_ai = True
     while run:
-        if return_status == 0 or return_status == 3:
-            run = False
-        if return_status == 1:
-            player_info = PlayerInfoView.player_select_screen(SCREEN, number_players)
-            initialize_gameboard(player_info)
+        player_info = PlayerInfoView.player_select_screen(SCREEN, number_players, is_ai) # type: ignore
+        initialize_gameboard(player_info)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
@@ -91,5 +75,3 @@ def initialize_gameboard(player_info):
     pygame.display.update()
     players = initialize_players(player_info)
     gameboard_view.main_loop_screen(players)
-    
-

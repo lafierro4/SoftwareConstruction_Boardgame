@@ -1,13 +1,3 @@
-# PlayerInfoView
-# Displays player-specific information, including names, financial status, and property ownership. Ensures player’s data is accurately presented to the user.
-# PlayerSelectBox is a class designed to allow the user to create multiple Players at once, with text input and a token selection  wheel.
- 
-# Show Property Details
-# Communicates with any Property to display its information when a player selects it. (Owned by them, someone else, Or no one)
-# Pre-Condition: \@requires self.is_property_owned() or not self.is_property_owned()
-# Post-Condition: \@ensures self.ui.display_property_selected()
-# Method Signature: display_property(self) ->None
-
 FPS = 60 
 import  tkinter as tk
 import pygame, os
@@ -33,7 +23,7 @@ class PlayerSelectBox:
 
         self.token_images = token_image_surface(button_size)
         self.active_token = 0
-
+    
     def handle_event(self, event):
         for button in [self.back_button, self.forward_button]:
             if event.type == pygame.MOUSEBUTTONDOWN and button.check_clicked(event.pos):
@@ -58,7 +48,7 @@ class PlayerSelectBox:
             pygame.draw.rect(screen, (0, 255, 0), self.rect, 2)
         else:
             pygame.draw.rect(screen, (0, 0, 0), self.rect, 2)  
-
+        
         input_surface = self.font.render(self.input_text, True, (0, 0, 0))
         screen.blit(input_surface, (self.rect.x + 5, self.rect.y + 5))
 
@@ -75,7 +65,7 @@ class PlayerSelectBox:
         screen.blit(self.forward_button.image, self.forward_button.rect.topleft)
 
 
-def player_select_screen(screen:pygame.Surface,number_of_players):
+def player_select_screen(screen:pygame.Surface,number_of_players, vs_ai_mode):
     input_font = pygame.font.Font(os.path.join("assets", "images", "Minecraft.ttf"), 50)
     title_font = pygame.font.Font(os.path.join("assets", "images", "Minecraft.ttf"), 45)
     bg_image = pygame.transform.smoothscale(pygame.image.load(os.path.join("assets","images","bg_settings.png")), (screen.get_width(), screen.get_height()) )
@@ -89,6 +79,10 @@ def player_select_screen(screen:pygame.Surface,number_of_players):
     total_height = len(range(3)) * (box_height + space_between_boxes) - space_between_boxes
     starting_y = (screen.get_height() - total_height) // 2
     for i in range(number_of_players): 
+        if vs_ai_mode:
+            player_box = PlayerSelectBox((screen.get_width() - box_width) // 4,starting_y + i * (box_height + space_between_boxes), screen.get_width() // 2, 50, input_font)
+            player_boxes.append(player_box)
+            break
         player_box = PlayerSelectBox((screen.get_width() - box_width) // 4,starting_y + i * (box_height + space_between_boxes), screen.get_width() // 2, 50, input_font)
         player_boxes.append(player_box)
 
@@ -124,6 +118,13 @@ def player_select_screen(screen:pygame.Surface,number_of_players):
                     for player_box in player_boxes:
                         player_names.append( player_box.input_text)
                         player_tokens.append( player_box.active_token)
+                        if vs_ai_mode and player_box.active_token > 0:
+                            player_box.input_text = player_box.input_text.split()[0]
+                    if vs_ai_mode:
+                        ai_players = number_of_players - 1
+                        for i in range(ai_players):
+                            player_names.append(f"AI {i+1}")
+                            player_tokens.append(i + 1)
                         
                     return player_data
 

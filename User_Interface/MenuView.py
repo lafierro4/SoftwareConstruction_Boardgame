@@ -6,15 +6,10 @@ import pygame, os
 from User_Interface.util import *
 pygame.init()
 
-# Display Choice 
-# Informs the GameBoardView about the user’s display setting such as size, brightness, or color blindness. 
-# Pre-Conditions: \@requires self.is_initialized() 
-# Post-Condition: \@ensures self.ui.display_updated_settings() 
-# Method Signature: def display_choice(self) -> None: 
 
 FPS = 60
 
-def main_menu(SCREEN: pygame.Surface) -> int:
+def main_menu(SCREEN: pygame.Surface) -> tuple:
     """
         The Main Menu Screen.
         Gives the User Options at the start up of game.\n
@@ -54,7 +49,8 @@ def main_menu(SCREEN: pygame.Surface) -> int:
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if play_button.check_clicked(mouse_pos):
                     pygame.mixer.music.stop()
-                    return 1
+                    #return 1
+                    return play_mode_selection(SCREEN)
                 if options_button.check_clicked(mouse_pos):
                     options_menu(SCREEN)
                 if quit_button.check_clicked(mouse_pos):
@@ -125,5 +121,101 @@ def options_menu(SCREEN: pygame.Surface):
 
         pygame.display.update()
         clock.tick(FPS)
+    pygame.quit()
+    quit()
+
+
+def play_mode_selection(SCREEN: pygame.Surface) -> tuple:
+    SCREEN.fill("white")
+    bg_image = pygame.transform.smoothscale(pygame.image.load(os.path.join("assets", "images", "mode.png")), (SCREEN.get_width(), SCREEN.get_height()))
+    button_font =  pygame.font.Font(os.path.join("assets", "images", "brokenmachine.ttf"), 50)
+    run = True
+    clock = pygame.time.Clock()
+    while run:
+        bg_image = pygame.transform.smoothscale(bg_image, (SCREEN.get_width(), SCREEN.get_height()))
+        SCREEN.blit(bg_image,(0,0))
+        mouse_pos = pygame.mouse.get_pos()
+        play_local_button = Button(pos=(SCREEN.get_width()/2, SCREEN.get_height()/3), text_input="Play Local", font=button_font, base_color="#ff0000", hover_color="#0a18f3")
+        play_AI_button = Button(pos=(SCREEN.get_width() / 2, SCREEN.get_height() / 3 + 150), text_input="Play Vs AI", font=button_font, base_color="#ff0000", hover_color="#0a18f3")
+        for button in [play_local_button, play_AI_button]:
+            button.change_color(mouse_pos)
+            button.update(SCREEN)
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run = False
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if play_local_button.check_clicked(mouse_pos):
+                    return players_selection(SCREEN, False)
+                    #return 1
+                if play_AI_button.check_clicked(mouse_pos):
+                    return players_selection(SCREEN, True)
+                    #return 2
+        pygame.display.update()
+        clock.tick(FPS)
+    pygame.quit()
+    quit()
+
+def players_selection(SCREEN: pygame.Surface, is_ai: bool) -> tuple:
+    SCREEN.fill("white")
+    bg_image = pygame.transform.smoothscale(pygame.image.load(os.path.join("assets", "images", "select.png")), (SCREEN.get_width(), SCREEN.get_height()))
+    button_font = pygame.font.Font(os.path.join("assets", "images", "brokenmachine.ttf"), 50)
+    run = True
+    clock = pygame.time.Clock()
+    heading_font = pygame.font.Font(os.path.join("assets", "images", "brokenmachine.ttf"), 70)
+    if is_ai:
+        heading_text = heading_font.render("Choose the number of bots", True, (255, 0, 0))
+    else:
+        heading_text = heading_font.render("Choose the number of players", True, (255, 0, 0))
+
+    while run:
+        bg_image = pygame.transform.smoothscale(bg_image, (SCREEN.get_width(), SCREEN.get_height()))
+        SCREEN.blit(bg_image, (0, 0))
+        SCREEN.blit(heading_text, (SCREEN.get_width() // 2 - heading_text.get_width() // 2, SCREEN.get_height() // 4))
+
+        mouse_pos = pygame.mouse.get_pos()
+
+        if is_ai:
+            bot_1_button = Button(pos=(SCREEN.get_width() // 2, SCREEN.get_height() // 2), text_input="1 Bot", font=button_font, base_color="#ff0000", hover_color="#0a18f3")
+            bot_2_button = Button(pos=(SCREEN.get_width() // 2, SCREEN.get_height() // 2 + 150), text_input="2 Bots", font=button_font, base_color="#ff0000", hover_color="#0a18f3")
+            bot_3_button = Button(pos=(SCREEN.get_width() // 2, SCREEN.get_height() // 2 + 300), text_input="3 Bots", font=button_font, base_color="#ff0000", hover_color="#0a18f3")
+
+            for button in [bot_1_button, bot_2_button, bot_3_button]:
+                button.change_color(mouse_pos)
+                button.update(SCREEN)
+
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    run = False
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    if bot_1_button.check_clicked(mouse_pos):
+                        return (1, 1) #number of human players, number of bots
+                    elif bot_2_button.check_clicked(mouse_pos):
+                        return (1, 2)
+                    elif bot_3_button.check_clicked(mouse_pos):
+                        return (1, 3)
+        else:
+            player_2_button = Button(pos=(SCREEN.get_width() // 2, SCREEN.get_height() // 2), text_input="2 Players", font=button_font, base_color="#ff0000", hover_color="#0a18f3")
+            player_3_button = Button(pos=(SCREEN.get_width() // 2, SCREEN.get_height() // 2 + 150), text_input="3 Players", font=button_font, base_color="#ff0000", hover_color="#0a18f3")
+            player_4_button = Button(pos=(SCREEN.get_width() // 2, SCREEN.get_height() // 2 + 300), text_input="4 Players", font=button_font, base_color="#ff0000", hover_color="#0a18f3")
+
+            for button in [player_2_button, player_3_button, player_4_button]:
+                button.change_color(mouse_pos)
+                button.update(SCREEN)
+
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    run = False
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    if player_2_button.check_clicked(mouse_pos):
+                        return (2, 0)
+                    elif player_3_button.check_clicked(mouse_pos):
+                        return (3, 0)
+                    elif player_4_button.check_clicked(mouse_pos):
+                        return (4, 0)
+
+        pygame.display.update()
+        clock.tick(FPS)
+
     pygame.quit()
     quit()
