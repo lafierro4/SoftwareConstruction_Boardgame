@@ -6,7 +6,7 @@ from PIL import Image, PngImagePlugin
 class Square(Space):
     """Represents a square on the Monopoly board."""
 
-    def __init__(self, name: str, square_type: str, color: str = "#a37759", image_path: str = None):
+    def __init__(self, name: str, square_type: str, color: str = "#a37759", image_path: str = ""):
         Space.__init__(self, name, square_type, color)
         self._image_path = image_path
         self._image = None
@@ -58,18 +58,16 @@ class Square(Space):
     @property
     def color(self) -> str:
         return self._color
+    
+    @property
+    def image(self):
+        if self._image is None and self._image_path:
+            self._image = Image.open(self._image_path)
+        elif self._image is not None:
+            return self._image
 
-<<<<<<< Updated upstream
    # def _chance_action(self, player: Player) -> None:
     #        pass
 
     # def _community_chest_action(self, player: Player) -> None:
      #   pass
-=======
-    @property
-    def image(self) -> Image.Image:
-        if self.image is None and self._image_path:
-            self._image = Image.open(self._image_path)
-        return self._image
-
->>>>>>> Stashed changes

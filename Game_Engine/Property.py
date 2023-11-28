@@ -1,7 +1,8 @@
 from typing import Optional
 from Game_Engine.Space import Space
 from Game_Engine.Player import Player
-from PIL import Image, PngImagePlugin
+from PIL import Image
+
 
 
 class Property(Space):
