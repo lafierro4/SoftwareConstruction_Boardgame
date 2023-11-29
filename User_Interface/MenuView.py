@@ -128,7 +128,10 @@ def options_menu(SCREEN: pygame.Surface):
 def play_mode_selection(SCREEN: pygame.Surface) -> tuple:
     SCREEN.fill("white")
     bg_image = pygame.transform.smoothscale(pygame.image.load(os.path.join("assets", "images", "mode.png")), (SCREEN.get_width(), SCREEN.get_height()))
-    button_font =  pygame.font.Font(os.path.join("assets", "images", "brokenmachine.ttf"), 50)
+    pygame.mixer.music.load(os.path.join("assets","sounds","chooseAGame.mp3"))
+    pygame.mixer.music.set_volume(0.45)
+    pygame.mixer.music.play(loops= -1)
+    button_font = pygame.font.Font(os.path.join("assets", "images", "brokenmachine.ttf"), 50)
     run = True
     clock = pygame.time.Clock()
     while run:
