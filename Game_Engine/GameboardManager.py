@@ -24,7 +24,7 @@ class Gameboard:
     def __init__(self) -> None:
         self._players: list[Player] = []
         self._board: list[Space] = [
-            Square("Go", "corner"),
+            Square("Go","corner"),
             Property("Mediterranean Meals", "property", "#a37759", 60, [2, 10, 30, 90, 160, 250]),
             Square("Lice Tax", "tax"),
             Property("Baltic Breezeway", "property", "#a37759", 60, [4, 20, 60, 180, 320, 450]),
