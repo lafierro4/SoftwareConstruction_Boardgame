@@ -9,6 +9,19 @@ class Space(ABC):
         self._name = name
         self._square_type = square_type
         self._color = color
+    
+    @property
+    def name(self) -> str:
+        return self._name
+
+    @property
+    def square_type(self) -> str:
+        return self._square_type
+
+    @property
+    def color(self) -> str:
+        return self._color
+
 
     @abstractmethod
     def action(self, player: Player) -> None:

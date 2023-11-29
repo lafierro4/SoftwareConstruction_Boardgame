@@ -5,7 +5,11 @@ from Game_Engine.Space import Space
 class Square(Space):
     """Represents a square on the Monopoly board."""
 
-    def __init__(self, name: str, square_type: str, color: str = "#a37759"):
+    def __init__(self, name: str, square_type: str, color: str = "#cce6cf"):
+        if square_type == "corner":
+            color = "#cce6cf"
+        elif square_type == "tax":
+            color = "#a0c0c0"
         Space.__init__(self, name, square_type, color)
 
     def action(self, player: Player) -> None:

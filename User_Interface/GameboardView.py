@@ -21,33 +21,36 @@ class GameboardView:
 
     def setup_board(self):
         self.board_surface.fill((255, 255, 255))
+        index = 0
         for row in range(1, 14):
             for col in range(1, 14):
                 x = (col - 1) * self.space_size
                 y = (row - 1) * self.space_size
-                if row == 1:
-                    self.draw_row(col, x, y)
-                if row == 12:
-                    self.draw_row(col, x, y)
-                if row == 2 or row == 13:
+                # space how to implement this
+                space = self.squares[index]
+                if (row == 1 or row == 12):
+                    if(col == 1 or col == 12):   
+                        self.draw_rectangle(x, y, True, False, space.color)
+                    elif col == 2 or col == 13:
+                        if col != 13:
+                            index += 1
+                        pass
+                    else:
+                        self.draw_rectangle(x, y, False, False, space.color)
+                        index += 1
+                elif (2 < row < 12) and (col == 1 or col == 12):
+                    self.draw_rectangle(x, y, False, True, space.color)
+                    index += 1
+                else:
                     continue
-                if row > 2 and row < 12:
-                    if col == 1 or col == 12:
-                        self.draw_rectangle(x, y, False, True)
-                
         self.screen.blit(self.board_surface, (0, 0))
     
-    def draw_row(self, col, x, y):
-        if col == 1:
-            self.draw_rectangle(x, y, True, False)
-        elif col == 2 or col == 13:
-            return
-        elif col == 12:
-            self.draw_rectangle(x, y, True, False)
-        else:
-            self.draw_rectangle(x, y, False, False)
+    def draw_row(self, col, x, y,color):
+        if col == 1 or col == 12:
+          pass
+        
 
-    def draw_rectangle(self, x, y, is_corner, is_lateral):
+    def draw_rectangle(self, x, y, is_corner, is_lateral, color):
         if is_corner:
             pygame.draw.rect(
                 self.board_surface,
@@ -63,7 +66,7 @@ class GameboardView:
         elif is_lateral:
             pygame.draw.rect(
                 self.board_surface,
-                hex_to_rgb("#cce6cf"),
+                hex_to_rgb(color),
                 (x, y, int(self.space_size * 2), int(self.space_size)),
             )
             pygame.draw.rect(
@@ -75,14 +78,15 @@ class GameboardView:
         else:
             pygame.draw.rect(
                 self.board_surface,
-                hex_to_rgb("#cce6cf"),
+                hex_to_rgb(color),
                 (x, y, int(self.space_size), int(self.space_size * 2)),
             )
             pygame.draw.rect(
-                        self.board_surface,
-                        hex_to_rgb("#171717"),
-                        (x, y, int(self.space_size), int(self.space_size * 2)), width = self.border_width
-                    )
+                self.board_surface,
+                hex_to_rgb("#171717"),
+                (x, y, int(self.space_size), int(self.space_size * 2)), 
+                width = self.border_width
+            )
 
     def render_player_move(self,players:list[Player], player: Player, distance: int):
         for step in range(distance):
@@ -178,12 +182,13 @@ class GameboardView:
 
 
     def display_action(self,player:Player, square_index):
-        current_space = self.gameboard._board[square_index]
+        current_space = self.squares[square_index]
         if isinstance(current_space,Property):
             _display_property_action(self.screen,current_space,player)
         elif isinstance(current_space,Square):
             _display_square_action(self.screen,current_space,player)
         return
+    
 def property_is_being_bought(player: Player, property_object: Property, action_text, action, action_text_rect, screen, font):
     if player.balance >= property_object.price:
         property_object.action(player)

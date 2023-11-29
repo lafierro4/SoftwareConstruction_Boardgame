@@ -94,19 +94,6 @@ class Property(Space):
     def change_owner(self,player:Player) -> None:
         self._owner = player
 
-    
-    @property
-    def name(self) -> str:
-        return self._name
-
-    @property
-    def square_type(self) -> str:
-        return self._square_type
-
-    @property
-    def color(self) -> str:
-        return self._color
-
     @property
     def price(self) -> int:
         return self._price
