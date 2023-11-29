@@ -24,16 +24,16 @@ class Square(Space):
         elif self.square_type == "jail":
             self._jail(player)
         elif self.square_type == "go_to_jail":
-            self.go_to_jail(player)
+            self._go_to_jail_action(player)
         elif self.square_type == "tax":
             self._tax_action(player)
-  
 
     def _jail(self, player: Player) -> None:
         pass
 
-    def go_to_jail(self, player: Player) -> None:
-        pass
+    def _go_to_jail_action(self, player: Player) -> None:
+        player.set_jail_status(True)
+        player.change_position(10)
 
     def _tax_action(self, player: Player) -> None:
         """
@@ -45,8 +45,6 @@ class Square(Space):
             player (Player): The player that has landed on the tax square.
         """
         player.decrease_balance(int(player.balance * 0.1))
-        return
-        
 
     @property
     def name(self) -> str:
@@ -59,9 +57,3 @@ class Square(Space):
     @property
     def color(self) -> str:
         return self._color
-
-   # def _chance_action(self, player: Player) -> None:
-    #        pass
-
-    # def _community_chest_action(self, player: Player) -> None:
-     #   pass

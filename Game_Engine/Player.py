@@ -32,6 +32,26 @@ class Player:
         self._last_roll = 0
         self._position_x = space_size * 11
         self._position_y = space_size * 11
+        self._in_jail = False
+    
+    # region Contract Manage Position
+
+    @property
+    def position(self) -> int:
+        return self._position
+
+    def change_position(self, position: int) -> int:
+        """
+        Sets the player's position to a certain space on the board.
+
+        Updates the player's position, taking into account the number of spaces
+        on the board by taking the modulus of 40.
+
+        Returns:
+            The player's new position.
+        """
+        self._position = position % 40
+        return self._position
 
     def move(self, steps: int) -> int:
         """
@@ -49,11 +69,29 @@ class Player:
             The player's new position.
         """
         old_position = self._position
-        self._position = (self._position + steps) % 40
-        if old_position > self._position:
-            self._balance += 200
+        new_position = self.change_position(old_position + steps)
+        if old_position > new_position:
+            self.increase_balance(200)
         self._last_roll = steps
-        return self._position
+        return new_position
+    
+    # endregion
+
+    # region Contract Manage Balance
+
+    def increase_balance(self, amount: int) -> None:
+        if amount >= 0:
+            self._balance += amount
+        else:
+            return
+
+    def decrease_balance(self, amount: int) -> None:
+        if amount >= 0:
+            self._balance -= amount
+        else:
+            return
+    
+    # endregion
 
     def set_position(self, x, y):
         self._position_x = x
@@ -67,27 +105,18 @@ class Player:
             self._balance -= amount
             owner.balance += amount
 
-    def add_property(self, property_item):
+    def add_property(self, property_item) -> None:
         self._assets.append(property_item)
 
     def is_bankrupt(self) -> bool:
         return self._balance < 0
-
-    def increase_balance(self, amount):
-        if amount >= 0:
-            self._balance += amount
-        else:
-            return
-
-    def decrease_balance(self, amount: int) -> None:
-        if amount >= 0:
-            self._balance -= amount
-        else:
-            return
-
-    def calculate_assets(self) -> int:
-        return functools.reduce(lambda sum_assets, asset: asset.price + sum_assets, self._assets)
     
+    def in_jail(self) -> bool:
+        return self._in_jail
+    
+    def set_jail_status(self, in_jail: bool) -> None:
+        self._in_jail = in_jail
+
     def owns_both_utilities(self) -> bool:
         return sum(asset.square_type == "utility" for asset in self._assets) >= 2
 

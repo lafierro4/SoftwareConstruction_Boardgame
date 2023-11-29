@@ -88,35 +88,24 @@ class GameboardView:
                 width = self.border_width
             )
 
-    def render_player_move(self,players:list[Player], player: Player, distance: int):
-        for step in range(distance):
-            # Calculate the next position based on the step
-            if player._position_y == self.space_size * 11:
-                if player._position_x == self.space_size:
-                    next_x, next_y = player._position_x, player._position_y - self.space_size
-                else:
-                    next_x, next_y = player._position_x - self.space_size, player._position_y
-            elif player._position_y == self.space_size:
-                if player._position_x == self.space_size * 11:
-                    next_x, next_y = player._position_x, player._position_y + self.space_size
-                else:
-                    next_x, next_y = player._position_x + self.space_size, player._position_y
-            else:
-                if player._position_x == self.space_size:
-                    next_x, next_y = player._position_x, player._position_y - self.space_size
-                else:
-                    next_x, next_y = player._position_x, player._position_y + self.space_size
+    def render_player_move(self, players:list[Player], current_player: Player, steps: int):
+        for step in range(steps):
+            self.screen.blit(self.board_surface, (0, 0))
 
-            player._position_x, player._position_y = next_x, next_y
-            self.draw_board(players)
-            self.screen.blit(player.token, (player._position_x, player._position_y))
+            for player in players:
+                total_pos = (player.position - steps + step + 1) % 40 if player is current_player else player.position
+                offset_pos = (player.position - steps + step + 1) % 10 if player is current_player else player.position % 10
+                if total_pos < 10:
+                    self.screen.blit(player.token, (self.space_size * (11 - offset_pos), self.space_size * 11))
+                elif total_pos < 20:
+                    self.screen.blit(player.token, (self.space_size, self.space_size * (11 - offset_pos)))
+                elif total_pos < 30:
+                    self.screen.blit(player.token, (self.space_size * (offset_pos + 1), self.space_size))
+                else:
+                    self.screen.blit(player.token, (self.space_size * 11, self.space_size * (offset_pos + 1)))
+            
             pygame.display.update()
             pygame.time.delay(250)
-
-    def draw_board(self,players:list[Player]):
-        self.screen.blit(self.board_surface, (0, 0))
-        for player in players:
-            self.screen.blit(player.token, (player._position_x, player._position_y))
             
     def main_loop_screen(self,players: list[Player]):
         text_font = pygame.font.Font(os.path.join("assets","images", "Minecraft.ttf"), 35)
@@ -174,11 +163,18 @@ class GameboardView:
 
     def dice_is_being_rolled(self, players, dice_surfaces, current_player_index):
         dice_rolls = self.gameboard.roll_dice()
-        player_position = players[current_player_index].move(sum(dice_rolls))
-        self.render_player_move(players,players[current_player_index] ,dice_rolls[0] + dice_rolls[1])
+        steps = sum(dice_rolls)
+        if players[current_player_index].in_jail():
+            if all(roll == dice_rolls[0] for roll in dice_rolls):
+                players[current_player_index].set_jail_status(False)
+                players[current_player_index].move(steps)
+                self.render_player_move(players, players[current_player_index], steps)
+        else:
+            players[current_player_index].move(steps)
+            self.render_player_move(players, players[current_player_index], steps)
         for index, roll in enumerate(dice_rolls):
             self.screen.blit(dice_surfaces[roll - 1], (self.screen.get_width() / (1.65 - index * 0.12), self.screen.get_height() / 1.25))
-        self.display_action(players[current_player_index], player_position)
+        self.display_action(players[current_player_index], players[current_player_index].position)
 
 
     def display_action(self,player:Player, square_index):

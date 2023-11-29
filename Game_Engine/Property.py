@@ -30,17 +30,13 @@ class Property(Space):
         Space.__init__(self, name, property_type, color)
         self._price = price
         self._owner = None
-        self._owned = False
 
         if property_type == "property":
             self._rent_values = rent_values
             self._num_houses = 0
         
     def is_owned(self) -> bool:
-        if self._owner is None:
-            return False
-        else:
-            return True
+        return self._owner is not None
 
     def action(self, player: Player) -> None:
         """
