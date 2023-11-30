@@ -1,15 +1,16 @@
 # GameboardView
 # In charge of rendering the game board, properties, and other visual
 # elements related to the game board. Handles user interactions with the game board, such as property selections and purchases.
-import pygame, os, textwrap, math
+import pygame, os, random
 
 FPS = 60
 WIDTH, HEIGHT = 1280, 720
-from Game_Engine.GameboardManager import *
+from Game_Engine.Square import Square
+from Game_Engine.Property import Property
 from User_Interface.PlayerInfoView import *
 from User_Interface.util import *
-from User_Interface.MenuView import options_menu
 from AI.Strategy import Strategy
+
 class GameboardView:
     def __init__(self,screen:pygame.Surface):
         self.screen = screen
@@ -67,14 +68,13 @@ class GameboardView:
                 x = (col - 1) * self.space_size
                 y = (row - 1) * self.space_size
                 # space how to implement this
-                space = self._board[index]
+                space = self._board[2]
                 if (row == 1 or row == 12):
                     if(col == 1 or col == 12):   
                         self.draw_rectangle(x, y, True, False, space.color)
                     elif col == 2 or col == 13:
-                        if col != 13:
-                            index += 1
-                        pass
+                        index += 1
+                        continue
                     else:
                         self.draw_rectangle(x, y, False, False, space.color)
                         index += 1
@@ -83,6 +83,7 @@ class GameboardView:
                     index += 1
                 else:
                     continue
+                print(index)
         self.screen.blit(self.board_surface, (0, 0))
     
     def draw_row(self, col, x, y,color):
