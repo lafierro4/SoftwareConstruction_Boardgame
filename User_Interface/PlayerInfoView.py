@@ -1,6 +1,6 @@
 FPS = 60 
 import tkinter as tk
-import tkinter.font
+from tkinter import font, ttk
 import pygame, os
 from Game_Engine.Player import Player
 from User_Interface.util import *
@@ -140,25 +140,40 @@ def player_select_screen(screen:pygame.Surface,number_of_players, vs_ai_mode):
 
 def display_player_info(player: Player):
     def on_select(event):
-        selected_index = listbox_assets.curselection()
+        selected_index = treeview_assets.selection()
         if selected_index:
             add_house_button.pack(pady=5)
 
     def buy_house():
-        selected_index = listbox_assets.curselection()
-        if selected_index:
+        selected_item = treeview_assets.focus()
+        if selected_item:
+            selected_index = treeview_assets.index(selected_item)
             if player.assets != None:
-                selected_asset = player.assets[selected_index[0]]
-                result = selected_asset.add_house()
+                selected_asset = player.assets[selected_index]
+                if selected_asset.square_type == "property":
+                    if selected_asset.num_houses <= 4:
+                        result = selected_asset.add_house()
+                    else:
+                        result = f"Maximum Houses Purchased for {selected_asset.name}"
+                else:
+                    result = f"{selected_asset.name} is Not a Property\nUnable to Purchase Houses"
                 result_label.config(text=result)
-                balance_var.set(f"Player Balance: ${player.balance}")
-                for asset in player.assets:
-                    listbox_assets.insert(tk.END, f"{asset.name}       Current Rent: ${asset.current_rent}")  
+            update_treeview()
+
+
+    def update_treeview():
+        treeview_assets.delete(*treeview_assets.get_children())
+        if player.assets is not None:
+            for asset in player.assets:
+                if asset.square_type == "property":
+                    treeview_assets.insert("", "end",values=(asset.name, asset.num_houses, asset.current_rent, asset.house_price))
+                else:
+                    treeview_assets.insert("", "end",values=(asset.name, "N/A", "N/A", "N/A"))
         root.update()
 
     root = tk.Tk()
     root.title(f"{player.name}'s Information")
-    root.geometry("640x360")
+    root.geometry("825x550")
 
     label_name = tk.Label(root, text=f"Player Name: {player.name}")
     label_name.pack()
@@ -171,15 +186,18 @@ def display_player_info(player: Player):
     label_property_ownership = tk.Label(root, text="Property Ownership:")
     label_property_ownership.pack()
 
-    listbox_assets = tk.Listbox(root, width=75, borderwidth=2.5, justify="center", activestyle='dotbox')
-    listbox_assets.pack()
+    treeview_assets = ttk.Treeview(root, columns=("Name", "Num Houses", "Current Rent", "House Price"), show="headings")
+    treeview_assets.heading("Name", text="Property Name")
+    treeview_assets.heading("Num Houses", text="Number of Houses")
+    treeview_assets.heading("Current Rent", text="Current Rent")
+    treeview_assets.heading("House Price", text="House Price")
+    treeview_assets.pack()
 
     if player.assets is not None:
-        for asset in player.assets:
-            listbox_assets.insert(tk.END, f"{asset.name}       Current Rent: ${asset.current_rent}")
+        update_treeview()
 
     add_house_button = tk.Button(root, font=("", 12), text="Buy House", command=buy_house)
-    listbox_assets.bind('<<ListboxSelect>>', on_select)
+    treeview_assets.bind('<<TreeviewSelect>>', on_select)
     add_house_button.pack()
 
     result_label = tk.Label(root, text="")

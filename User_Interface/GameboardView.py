@@ -262,7 +262,7 @@ def _display_property_action(screen:pygame.Surface,property_object:Property,play
     while run:
         if not property_object.is_owned():  
             #displays balance
-            text_balance = text_font.render(f"{player.name}'s Balance {player.balance}", False, hex_to_rgb("#000000"))
+            text_balance = font.render(f"{player.name}'s Balance {player.balance}", False, hex_to_rgb("#000000"))
             text_balance_rect = text_balance.get_rect(center=(screen.get_width() /1.35, screen.get_height()/16))
             screen.blit(text_balance, text_balance_rect)
             

@@ -82,7 +82,7 @@ class Property(Space):
         Returns:
             The price of rent.
         """
-        if self._square_type == "property":
+        if self.square_type == "property":
             return self._rent_values[self._num_houses]
         else:
             multiplier = 4 if player.owns_both_utilities() else 10
@@ -90,12 +90,19 @@ class Property(Space):
     
     def add_house(self):
         if self.owner != None:
-            if self.owner.balance > self.house_price:
-                self.owner.decrease_balance(self.house_price)
-                self._num_houses += 1
-                return (f"Successfully Bougth House for ${self.house_price}\nCurrent Number of Houses: {self.num_houses}")
+            if self.square_type == "property":
+                if self.owner.balance > self.house_price:
+                    if self.num_houses <= 4:
+                        self.owner.decrease_balance(self.house_price) 
+                        self._num_houses += 1
+                        return (f"Successfully Bought a House for ${self.house_price}\nCurrent Number of Houses: {self.num_houses}")
+                    else:
+                        return f"Maximum Houses Purchased for {self.name}"
+                else:
+                    return (f"Insufficent funds to purchase house, House Price: ${self.house_price}")   
             else:
-                return (f"Insufficent funds to purchase house, House Price: ${self.house_price}")   
+                return f"{self.name} is Not a Property\nUnable to Purchase Houses"
+            
 
 
     def change_owner(self,player:Player) -> None:
@@ -111,6 +118,7 @@ class Property(Space):
     @property
     def current_rent(self):
         return self._rent_values[self._num_houses]
+    
     @property
     def house_price(self):
         return self._house_price
