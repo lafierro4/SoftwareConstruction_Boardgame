@@ -1,5 +1,6 @@
 FPS = 60 
-import  tkinter as tk
+import tkinter as tk
+import tkinter.font
 import pygame, os
 from Game_Engine.Player import Player
 from User_Interface.util import *
@@ -136,25 +137,55 @@ def player_select_screen(screen:pygame.Surface,number_of_players, vs_ai_mode):
     pygame.quit()
     quit()
 
-def display_player_info(player:Player):
+
+def display_player_info(player: Player):
+    def on_select(event):
+        selected_index = listbox_assets.curselection()
+        if selected_index:
+            add_house_button.pack(pady=5)
+
+    def buy_house():
+        selected_index = listbox_assets.curselection()
+        if selected_index:
+            if player.assets != None:
+                selected_asset = player.assets[selected_index[0]]
+                result = selected_asset.add_house()
+                result_label.config(text=result)
+                balance_var.set(f"Player Balance: ${player.balance}")
+                for asset in player.assets:
+                    listbox_assets.insert(tk.END, f"{asset.name}       Current Rent: ${asset.current_rent}")  
+        root.update()
+
     root = tk.Tk()
-    root.title(f"{player.name}'s Infomation")
+    root.title(f"{player.name}'s Information")
     root.geometry("640x360")
+
     label_name = tk.Label(root, text=f"Player Name: {player.name}")
     label_name.pack()
- 
-    label_financial_status = tk.Label(root, text=f"Player Balance: ${player.balance}")
+
+    balance_var = tk.StringVar()
+    balance_var.set(f"Player Balance: ${player.balance}")
+    label_financial_status = tk.Label(root, textvariable=balance_var)
     label_financial_status.pack()
- 
+
     label_property_ownership = tk.Label(root, text="Property Ownership:")
     label_property_ownership.pack()
 
-    listbox_assets = tk.Listbox(root)
+    listbox_assets = tk.Listbox(root, width=75, borderwidth=2.5, justify="center", activestyle='dotbox')
     listbox_assets.pack()
 
-    if player.assets != None:
+    if player.assets is not None:
         for asset in player.assets:
-            listbox_assets.insert(tk.END, asset.name)
+            listbox_assets.insert(tk.END, f"{asset.name}       Current Rent: ${asset.current_rent}")
 
-    # Run the Tkinter main loop
+    add_house_button = tk.Button(root, font=("", 12), text="Buy House", command=buy_house)
+    listbox_assets.bind('<<ListboxSelect>>', on_select)
+    add_house_button.pack()
+
+    result_label = tk.Label(root, text="")
+    result_label.pack(pady=10)
+
+    root.mainloop()
+
+
     root.mainloop()

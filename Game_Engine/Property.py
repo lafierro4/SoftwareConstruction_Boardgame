@@ -17,7 +17,7 @@ class Property(Space):
     components of the game.
     """
 
-    def __init__(self, name: str, property_type: str, color: str, price: int, rent_values: list[int] = []):
+    def __init__(self, name: str, property_type: str, color: str, price: int, rent_values: list[int]= [], house_price: int= 0):
         """
         Initializes a Property object with the specified attributes.
 
@@ -34,6 +34,7 @@ class Property(Space):
         if property_type == "property":
             self._rent_values = rent_values
             self._num_houses = 0
+            self._house_price = house_price
         
     def is_owned(self) -> bool:
         return self._owner is not None
@@ -87,12 +88,32 @@ class Property(Space):
             multiplier = 4 if player.owns_both_utilities() else 10
             return multiplier * player.last_roll
     
+    def add_house(self):
+        if self.owner != None:
+            if self.owner.balance > self.house_price:
+                self.owner.decrease_balance(self.house_price)
+                self._num_houses += 1
+                return (f"Successfully Bougth House for ${self.house_price}\nCurrent Number of Houses: {self.num_houses}")
+            else:
+                return (f"Insufficent funds to purchase house, House Price: ${self.house_price}")   
+
+
     def change_owner(self,player:Player) -> None:
         self._owner = player
 
     @property
     def price(self) -> int:
         return self._price
+
+    @property
+    def num_houses(self):
+        return self._num_houses
+    @property
+    def current_rent(self):
+        return self._rent_values[self._num_houses]
+    @property
+    def house_price(self):
+        return self._house_price
     
     @property
     def owner_name(self) -> Optional[str]:
