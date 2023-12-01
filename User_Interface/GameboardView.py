@@ -72,8 +72,9 @@ class GameboardView:
                 if (row == 1 or row == 12):
                     if(col == 1 or col == 12):   
                         self.draw_rectangle(x, y, True, False, space.color)
+                        if col != 1:
+                            index += 1
                     elif col == 2 or col == 13:
-                        index += 1
                         continue
                     else:
                         self.draw_rectangle(x, y, False, False, space.color)
@@ -83,13 +84,8 @@ class GameboardView:
                     index += 1
                 else:
                     continue
-                print(index)
+               # print(index, x, row, y, col)
         self.screen.blit(self.board_surface, (0, 0))
-    
-    def draw_row(self, col, x, y,color):
-        if col == 1 or col == 12:
-          pass
-        
 
     def draw_rectangle(self, x, y, is_corner, is_lateral, color):
         if is_corner:
@@ -149,6 +145,10 @@ class GameboardView:
             pygame.time.delay(250)
             
     def main_loop_screen(self,players: list[Player]):
+        pygame.mixer.init()
+        pygame.mixer.music.load(os.path.join("assets","sounds","mysteryLand.mp3"))
+        pygame.mixer.music.set_volume(0.45)
+        pygame.mixer.music.play(loops= -1)
         text_font = pygame.font.Font(os.path.join("assets","images", "Minecraft.ttf"), 35)
         button_font = pygame.font.Font(os.path.join("assets","images", "Minecraft.ttf"), 20)
         dice_img = pygame.transform.smoothscale(pygame.image.load(os.path.join("assets", "images", "dice.png")), (50, 50))
@@ -177,8 +177,8 @@ class GameboardView:
             self.screen.blit(turn_text, turn_text_rect)
             if is_ai:
                 start_time = pygame.time.get_ticks()
-                delay_duration = 3000  # Adjust the delay time (in milliseconds) as needed
-
+                # Adjust the delay time (in milliseconds) as needed
+                delay_duration = 3000  
                 while pygame.time.get_ticks() - start_time < delay_duration:
                     pygame.display.update()
                     clock.tick(FPS)
@@ -192,9 +192,9 @@ class GameboardView:
                         if dice_button.check_clicked(mouse_pos):
                             self.dice_is_being_rolled(players, dice_surfaces, current_player_index)
                             current_player_index = (current_player_index + 1) % len(players)
-                        for index,button in enumerate(player_info_buttons):
-                            if button.check_clicked(mouse_pos):
-                                display_player_info(player= players[index])
+                        for current_player,player_button in enumerate(player_info_buttons):
+                            if player_button.check_clicked(mouse_pos):
+                                display_player_info(player= players[current_player])
             pygame.display.update()
             clock.tick(FPS)
     
