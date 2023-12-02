@@ -172,6 +172,12 @@ class GameboardView:
             for button in player_info_buttons:
                 button.change_color(mouse_pos)
                 button.update(self.screen)
+            #displays balance
+            for i, player in enumerate(players):
+                text_balance = text_font.render(f"{player.name}'s Balance {player.balance}", False, hex_to_rgb("#000000"))
+                text_balance_rect = text_balance.get_rect(center=(self.screen.get_width() / 1.35, self.screen.get_height() / 16 + i * 30))
+                self.screen.blit(text_balance, text_balance_rect)
+
             turn_text = text_font.render(f"{players[current_player_index]._name}'s Turn, Roll Those Dice!", True, hex_to_rgb("#000000"))
             turn_text_rect = turn_text.get_rect(center=(self.screen.get_width() / 1.35, self.screen.get_height()/3.5))
             self.screen.blit(turn_text, turn_text_rect)
@@ -260,12 +266,7 @@ def _display_property_action(screen:pygame.Surface,property_object:Property,play
     run = True
     is_ai = player.name.startswith("AI")
     while run:
-        if not property_object.is_owned():  
-            #displays balance
-            text_balance = font.render(f"{player.name}'s Balance {player.balance}", False, hex_to_rgb("#000000"))
-            text_balance_rect = text_balance.get_rect(center=(screen.get_width() /1.35, screen.get_height()/16))
-            screen.blit(text_balance, text_balance_rect)
-            
+        if not property_object.is_owned():      
             action = [(f"Would you like to buy"),
                     (f"{property_object.name}"),
                         (f"for ${property_object.price}?")]
