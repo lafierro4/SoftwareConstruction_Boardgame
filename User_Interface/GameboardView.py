@@ -8,55 +8,14 @@ WIDTH, HEIGHT = 1280, 720
 from Game_Engine.Square import Square
 from Game_Engine.Property import Property
 from User_Interface.PlayerInfoView import *
-from User_Interface.util import *
-from AI.Strategy import Strategy
+import User_Interface.util as util
+from Computer.Strategy import Strategy
 
 class GameboardView:
     def __init__(self,screen:pygame.Surface):
         self.screen = screen
         self.space_size = screen.get_width() / 25.6
-        self._board = [
-            Square("Go","corner"),
-            Property("Mediterranean Meals", "property", "#a37759", 60, [2, 10, 30, 90, 160, 250], 50),
-            Square("Lice Tax", "tax"),
-            Property("Baltic Breezeway", "property", "#a37759", 60, [4, 20, 60, 180, 320, 450], 50),
-            Square("Income Tax", "tax"),
-            Property("Skipping Railroad", "property", "#000000", 200, [25, 50, 100, 200]), 
-            Property("Oriental Oasis", "property", "#e8a541", 100, [6, 30, 90, 270, 400, 550], 50),
-            Square("Apple Tax", "tax"),
-            Property("Vermont Vacation", "property", "#e8a541", 100, [6, 30, 90, 270, 400, 550], 50),
-            Property("Connecticut Courtyard", "property", "#e8a541", 120, [8, 40, 100, 300, 450, 600],  50),
-            Square("Jail", "jail"),
-            Property("Sir Charles' Sanctuary", "property", "#a14685", 140, [10, 50, 150, 450, 625, 750],  100),
-            Property("Electric Company", "utility", "#a37759", 150),
-            Property("United Estates", "property", "#a14685", 140, [10, 50, 150, 450, 625, 750],  100),
-            Property("Virginia Vineyards", "property", "#a14685", 160, [12, 60, 180, 500, 700, 900], 100),
-            Property("Quarter Railroad", "property", "#000000", 200, [25, 50, 100, 200],100),
-            Property("Saintly James' Square", "property", "#ef756d", 180, [14, 70, 200, 550, 750, 950], 100),
-            Square("Charity Tax", "tax"),
-            Property("Tunessee Avenue", "property", "#ef756d", 180, [14, 70, 200, 550, 750, 950], 100),
-            Property("Big Apple Avenue", "property", "#ef756d", 200, [16, 80, 220, 600, 800, 1000], 100),
-            Square("Free Parking", "corner"),
-            Property("Kentucky Fried Avenue", "property", "#ca6e47", 220, [18, 90, 250, 700, 875, 1050], 150),
-            Square("Bad Hair Tax", "tax"),
-            Property("Indy Car Avenue", "property", "#ca6e47", 220, [18, 90, 250, 700, 875, 1050], 150),
-            Property("Illusion Avenue", "property", "#ca6e47", 240, [20, 100, 300, 750, 925, 1100],  150),
-            Property("R. R. Railroad", "property", "#000000", 200, [25, 50, 100, 200]),
-            Property("Atlantic Adventure", "property", "#2277a2", 260, [22, 110, 330, 800, 975, 1150], 150),
-            Property("Ventilation Avenue", "property", "#2277a2", 260, [22, 110, 330, 800, 975, 1150], 150),
-            Property("Water Works", "utility", "#a37759", 150),
-            Property("Marvin's Magic Meadow", "property", "#2277a2", 280, [24, 120, 360, 850, 1025, 1200], 150),
-            Square("Go To Jail", "go_to_jail"),
-            Property("Pacific Playground", "property", "#55a95d", 300, [26, 130, 390, 900, 1100, 1275], 200),
-            Property("Northern Charm Avenue", "property", "#55a95d", 300, [26, 130, 390, 900, 1100, 1275], 200),
-            Square("Juice Tax", "tax"),
-            Property("Penny-sylvania Avenue", "property", "#55a95d", 320, [28, 150, 450, 1000, 1200, 1400], 200),
-            Property("Longline Railroad", "property", "#000000", 200, [25, 50, 100, 200]),
-            Square("Candy Tax", "tax"),
-            Property("Parking Place", "property", "#e34537", 350, [35, 175, 500, 1100, 1300, 1500], 200),
-            Square("Luxury Tax", "tax"),
-            Property("Bored Walk", "property", "#e34537", 400, [50, 200, 600, 1400, 1700, 2000], 200),
-        ]
+        self._board = util.board_spaces()
         self.board_surface = pygame.Surface((self.screen.get_width(), self.screen.get_height()))
         self.border_width = 2
 
@@ -144,70 +103,6 @@ class GameboardView:
             pygame.display.update()
             pygame.time.delay(250)
             
-    def main_loop_screen(self,players: list[Player]):
-        pygame.mixer.init()
-        pygame.mixer.music.load(os.path.join("assets","sounds","mysteryLand.mp3"))
-        pygame.mixer.music.set_volume(0.45)
-        pygame.mixer.music.play(loops= -1)
-        text_font = pygame.font.Font(os.path.join("assets","images", "Minecraft.ttf"), 35)
-        button_font = pygame.font.Font(os.path.join("assets","images", "Minecraft.ttf"), 20)
-        dice_img = pygame.transform.smoothscale(pygame.image.load(os.path.join("assets", "images", "dice.png")), (50, 50))
-        button_background = pygame.transform.smoothscale(pygame.image.load(os.path.join("assets","images","button_background.png")), 
-                                                         ((self.screen.get_width()/8.5),(self.screen.get_height()/7)))
-        player_info_buttons = []
-        for index, player in enumerate(players):
-            player_info_buttons.append(Button(((self.screen.get_width() / 17.5) + (index * (self.screen.get_width()/8.5)), (self.screen.get_height()/1.05)), 
-                                              text_input= (f"{player.name}'s Info"), font= button_font, base_color= "#000000",hover_color="#4100ff",image=button_background))
-        dice_button = ImageButton(((self.screen.get_width() / 1.75), (self.screen.get_height() / 1.20)), dice_img)
-        dice_surfaces = [pygame.transform.smoothscale(pygame.image.load(os.path.join("assets", "images", f"dice_{index}.png")), (50, 50)) for index in range(1, 7)]
-        run = True
-        roll_dice_timer = None  # Timer to control automatic dice rolling for AI player
-        is_ai = False
-        clock = pygame.time.Clock()
-        current_player_index = 0
-        while run:
-            is_ai = players[current_player_index].name.startswith("AI")
-            mouse_pos = pygame.mouse.get_pos()
-            dice_button.update(self.screen)
-            for button in player_info_buttons:
-                button.change_color(mouse_pos)
-                button.update(self.screen)
-            #displays balance
-            for i, player in enumerate(players):
-                text_balance = text_font.render(f"{player.name}'s Balance {player.balance}", False, hex_to_rgb("#000000"))
-                text_balance_rect = text_balance.get_rect(center=(self.screen.get_width() / 1.35, self.screen.get_height() / 16 + i * 30))
-                self.screen.blit(text_balance, text_balance_rect)
-
-            turn_text = text_font.render(f"{players[current_player_index]._name}'s Turn, Roll Those Dice!", True, hex_to_rgb("#000000"))
-            turn_text_rect = turn_text.get_rect(center=(self.screen.get_width() / 1.35, self.screen.get_height()/3.5))
-            self.screen.blit(turn_text, turn_text_rect)
-            if is_ai:
-                start_time = pygame.time.get_ticks()
-                # Adjust the delay time (in milliseconds) as needed
-                delay_duration = 3000  
-                while pygame.time.get_ticks() - start_time < delay_duration:
-                    pygame.display.update()
-                    clock.tick(FPS)
-                self.dice_is_being_rolled(players, dice_surfaces, current_player_index)
-                current_player_index = (current_player_index + 1) % len(players)
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    run = False
-                if event.type == pygame.MOUSEBUTTONDOWN:
-                    if event.button == 1:
-                        if dice_button.check_clicked(mouse_pos):
-                            self.dice_is_being_rolled(players, dice_surfaces, current_player_index)
-                            current_player_index = (current_player_index + 1) % len(players)
-                        for current_player,player_button in enumerate(player_info_buttons):
-                            if player_button.check_clicked(mouse_pos):
-                                display_player_info(player= players[current_player])
-            pygame.display.update()
-            clock.tick(FPS)
-    
-
-        pygame.quit()
-        quit()
-
     def dice_is_being_rolled(self, players, dice_surfaces, current_player_index):
         random.seed()
         #dice_rolls =(random.randint(1, 6), random.randint(1, 6))
@@ -294,14 +189,14 @@ def _display_property_action(screen:pygame.Surface,property_object:Property,play
                 action_text_rect = [text.get_rect(center=(screen.get_width() / 1.35, screen.get_height() / (3 - i * 0.25))) for i, text in enumerate(action_text)]
                 for surface,rect in zip(action_text, action_text_rect):
                     screen.blit(surface,rect)
-                yes_button  = Button((screen.get_width()/1.25-150,screen.get_height()/2),"YES", font, "#000000", "#00ff00")
-                no_button = Button((screen.get_width()/1.25,screen.get_height()/2), "NO", font, "#000000", "#ff0000")
+                yes_button  = util.Button((screen.get_width()/1.25-150,screen.get_height()/2),"YES", font, "#000000", "#00ff00")
+                no_button = util.Button((screen.get_width()/1.25,screen.get_height()/2), "NO", font, "#000000", "#ff0000")
                 mouse_pos = pygame.mouse.get_pos()
                 
-                for button in [yes_button, no_button]:
-                    button.change_color(mouse_pos)
-                    button.update(screen)
-                clicked = False  # Variable to track whether a button was clicked
+                for util.Button in [yes_button, no_button]:
+                    util.Button.change_color(mouse_pos)
+                    util.Button.update(screen)
+                clicked = False  # Variable to track whether a util.Button was clicked
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
                         run = False
