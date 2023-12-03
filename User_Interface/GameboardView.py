@@ -7,8 +7,8 @@ FPS = 60
 WIDTH, HEIGHT = 1280, 720
 from Game_Engine.Square import Square
 from Game_Engine.Property import Property
-from User_Interface.PlayerInfoView import *
-import User_Interface.util as util
+from User_Interface import util
+from Game_Engine.Player import Player
 from Computer.Strategy import Strategy
 
 class GameboardView:
@@ -50,36 +50,36 @@ class GameboardView:
         if is_corner:
             pygame.draw.rect(
                 self.board_surface,
-                hex_to_rgb("#cce6cf"),
+                util.hex_to_rgb("#cce6cf"),
                 (x, y, int(self.space_size * 2), int(self.space_size * 2)),
             )
             pygame.draw.rect(
                 self.board_surface,
-                hex_to_rgb("#171717"),
+                util.hex_to_rgb("#171717"),
                 (x, y, int(self.space_size * 2), int(self.space_size * 2)),
                 width=self.border_width,
             )
         elif is_lateral:
             pygame.draw.rect(
                 self.board_surface,
-                hex_to_rgb(color),
+                util.hex_to_rgb(color),
                 (x, y, int(self.space_size * 2), int(self.space_size)),
             )
             pygame.draw.rect(
                 self.board_surface,
-                hex_to_rgb("#171717"),
+                util.hex_to_rgb("#171717"),
                 (x, y, int(self.space_size * 2), int(self.space_size)),
                 width=self.border_width,
             )
         else:
             pygame.draw.rect(
                 self.board_surface,
-                hex_to_rgb(color),
+                util.hex_to_rgb(color),
                 (x, y, int(self.space_size), int(self.space_size * 2)),
             )
             pygame.draw.rect(
                 self.board_surface,
-                hex_to_rgb("#171717"),
+                util.hex_to_rgb("#171717"),
                 (x, y, int(self.space_size), int(self.space_size * 2)), 
                 width = self.border_width
             )
@@ -105,8 +105,8 @@ class GameboardView:
             
     def dice_is_being_rolled(self, players, dice_surfaces, current_player_index):
         random.seed()
-        #dice_rolls =(random.randint(1, 6), random.randint(1, 6))
-        dice_rolls = (2,4)
+        dice_rolls =(random.randint(1, 6), random.randint(1, 6))
+        #dice_rolls = (2,4)
         steps = sum(dice_rolls)
         if players[current_player_index].in_jail():
             if all(roll == dice_rolls[0] for roll in dice_rolls):
@@ -129,7 +129,7 @@ class GameboardView:
             _display_square_action(self.screen,current_space,player)
         return
     
-def property_is_being_bought(player: Player, property_object: Property, action_text, action, action_text_rect, screen, font):
+def property_is_being_bought(player: Player, property_object: Property, text_rect, screen, font):
     if player.balance >= property_object.price:
         property_object.action(player)
         player.add_property(property_object)
@@ -137,9 +137,9 @@ def property_is_being_bought(player: Player, property_object: Property, action_t
         action = [(f"Player {player.name} bought"),
                     (f"{property_object.name} for ${property_object.price}!"),
                     (f"New Balance ${player.balance}")]
-        for inx,rect in enumerate(action_text_rect):
-            screen.fill((255, 255, 255), action_text_rect[inx])
-        action_text = [font.render(line, True, hex_to_rgb("#000000")) for line in action]
+        for inx,rect in enumerate(text_rect):
+            screen.fill((255, 255, 255), text_rect[inx])
+        action_text = [font.render(line, True, util.hex_to_rgb("#000000")) for line in action]
         action_text_rect = [text.get_rect(center=(screen.get_width() / 1.35, screen.get_height() / (3 - i * 0.25))) for i, text in enumerate(action_text)]
         for surface,rect in zip(action_text, action_text_rect):
             screen.blit(surface,rect)
@@ -147,139 +147,133 @@ def property_is_being_bought(player: Player, property_object: Property, action_t
     else:
         action = [(f"Unable to buy{property_object.name} for ${property_object.price}"),
                     (f"Not Enough Funds, Player Balance ${player.balance}")]
-        for inx,rect in enumerate(action_text_rect):
-            screen.fill((255, 255, 255), action_text_rect[inx])
-        action_text = [font.render(line, True, hex_to_rgb("#000000")) for line in action]
+        for inx,rect in enumerate(text_rect):
+            screen.fill((255, 255, 255), text_rect[inx])
+        action_text = [font.render(line, True, util.hex_to_rgb("#000000")) for line in action]
         action_text_rect = [text.get_rect(center=(screen.get_width() / 1.35, screen.get_height() / (3 - i * 0.25))) for i, text in enumerate(action_text)]
         for surface,rect in zip(action_text, action_text_rect):
             screen.blit(surface,rect)
         return
 # Long Method, idk how we can split it
-def _display_property_action(screen:pygame.Surface,property_object:Property,player:Player):
-    font = pygame.font.Font(os.path.join("assets","images", "Minecraft.ttf"), 30)
+
+def _display_property_action(screen: pygame.Surface, property_object: Property, player: Player):
+    font = pygame.font.Font(os.path.join("assets", "images", "Minecraft.ttf"), 30)
     clock = pygame.time.Clock()
     run = True
     is_ai = player.name.startswith("AI")
+    text_color = util.hex_to_rgb("#000000")
+
     while run:
-        if not property_object.is_owned():      
-            action = [(f"Would you like to buy"),
-                    (f"{property_object.name}"),
-                        (f"for ${property_object.price}?")]
+        if not property_object.is_owned():
+            action_lines = [f"Would you like to buy", f"{property_object.name}", f"for ${property_object.price}"]
             if is_ai:
-                if Strategy.should_buy_property(property_object,player): 
-                    action_text = [font.render(line, True, hex_to_rgb("#000000")) for line in action]
-                    action_text_rect = [text.get_rect(center=(screen.get_width() / 1.35, screen.get_height() / (3 - i * 0.25))) for i, text in enumerate(action_text)]
-                    for surface,rect in zip(action_text, action_text_rect):
-                        screen.blit(surface,rect)
-                    property_is_being_bought(player, property_object, action_text, action, action_text_rect, screen, font)
+                if Strategy.should_buy_property(property_object, player):
+                    text_rect = display_text(action_lines)
+                    property_is_being_bought(player, property_object, text_rect, screen, font)
                     return
                 else:
                     # AI Player did not buy the property
-                    action = [(f"{player.name} chose not to buy"),
-                    (f"{property_object.name}"),
-                        (f"for ${property_object.price}")]
-                    action_text = [font.render(line, True, hex_to_rgb("#000000")) for line in action]
-                    action_text_rect = [text.get_rect(center=(screen.get_width() / 1.35, screen.get_height() / (3 - i * 0.25))) for i, text in enumerate(action_text)]
-                    for surface, rect in zip(action_text, action_text_rect):
-                        screen.blit(surface, rect)
-                    pygame.display.update()
+                    action_lines[0] = f"{player.name} chose not to buy"
+                    display_text(action_lines)
                     return
-            else:    
-                action_text = [font.render(line, True, hex_to_rgb("#000000")) for line in action]
-                action_text_rect = [text.get_rect(center=(screen.get_width() / 1.35, screen.get_height() / (3 - i * 0.25))) for i, text in enumerate(action_text)]
-                for surface,rect in zip(action_text, action_text_rect):
-                    screen.blit(surface,rect)
-                yes_button  = util.Button((screen.get_width()/1.25-150,screen.get_height()/2),"YES", font, "#000000", "#00ff00")
-                no_button = util.Button((screen.get_width()/1.25,screen.get_height()/2), "NO", font, "#000000", "#ff0000")
+            else:
+                text_rect = display_text(action_lines)
+                yes_button = util.Button((screen.get_width() / 1.25 - 150, screen.get_height() / 2), "YES", font,
+                                         text_color, "#00ff00")
+                no_button = util.Button((screen.get_width() / 1.25, screen.get_height() / 2), "NO", font,
+                                        text_color, "#ff0000")
+
                 mouse_pos = pygame.mouse.get_pos()
-                
-                for util.Button in [yes_button, no_button]:
-                    util.Button.change_color(mouse_pos)
-                    util.Button.update(screen)
-                clicked = False  # Variable to track whether a util.Button was clicked
+                for button in [yes_button, no_button]:
+                    button.change_color(mouse_pos)
+                    button.update(screen)
+
+                clicked = False  # Variable to track whether a Button was clicked
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
                         run = False
-                    if event.type == pygame.MOUSEBUTTONDOWN:
+                    elif event.type == pygame.MOUSEBUTTONDOWN:
                         if yes_button.check_clicked(mouse_pos):
-                            property_is_being_bought(player, property_object,action_text, action, action_text_rect, screen, font)
+                            property_is_being_bought(player, property_object, text_rect, screen, font)
                             clicked = True
                         elif no_button.check_clicked(mouse_pos):
                             clicked = True
-                            #return
+
                 if clicked:
                     return
         elif property_object.owner is not player:
             property_object.action(player)
-            action = [(f"Player {property_object.owner_name}"),
-                       (f"owns {property_object.name},"),
-                      (f"pay ${property_object.calculate_rent(player)}"),
-                      (f"{player.name}'s new Balance ${player.balance}")]
-            action_text = [font.render(line, True, hex_to_rgb("#000000")) for line in action]
-            action_text_rect = [text.get_rect(center=(screen.get_width() / 1.35, screen.get_height() / (3 - i * 0.25))) for i, text in enumerate(action_text)]
-            for surface,rect in zip(action_text, action_text_rect):
-                screen.blit(surface,rect)
+            action_lines = [ f"Player {property_object.owner_name}",f"owns {property_object.name},",
+                f"pay ${property_object.calculate_rent(player)}", f"{player.name}'s new Balance ${player.balance}",
+            ]
+            display_text(action_lines)
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     run = False
             return
         else:
-            action = (f"You own {property_object.name}")
-            action_text = font.render(action, True,hex_to_rgb("#000000"))
-            action_text_rect = action_text.get_rect(center = (screen.get_width()/1.35, screen.get_height()/2))
-            screen.blit(action_text,action_text_rect)
+            action_lines = [f"You own {property_object.name}"]
+            display_text(action_lines)
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     run = False
             return
+
         pygame.display.update()
         clock.tick(FPS)
+
     pygame.quit()
     quit()
 
-def _display_square_action(screen:pygame.Surface,square_object:Square, player:Player):
-    font = pygame.font.Font(os.path.join("assets","images", "Minecraft.ttf"), 30)
+
+def _display_square_action(screen: pygame.Surface, square_object: Square, player: Player):
     clock = pygame.time.Clock()
     run = True
+
     while run:
         if square_object.square_type == "corner":
             if square_object.name == "Go":
-                action = (f"Landed on {square_object.name}, collect $200")
+                action_lines = [f"Landed on {square_object.name}, collect $200"]
             else:
-                action = (f"Landed on Free Parking")
-            action_text = font.render(action, True,hex_to_rgb("#000000"))
-            action_text_rect = action_text.get_rect(center = (screen.get_width()/1.35, screen.get_height()/2))
-            screen.blit(action_text,action_text_rect)
+                action_lines = [f"Landed on Free Parking"]
+            display_text(action_lines)
             square_object.action(player)
             return
         elif square_object.square_type == "jail":
-            action = (f"Landed on Jail, Just Visiting")
-            action_text = font.render(action, True,hex_to_rgb("#000000"))
-            action_text_rect = action_text.get_rect(center = (screen.get_width()/1.35, screen.get_height()/2))
-            screen.blit(action_text,action_text_rect)
+            action_lines = [f"Landed on Jail, Just Visiting"]
+            display_text(action_lines)
             square_object.action(player)
             return
         elif square_object.square_type == "go_to_jail":
-            action = (f"GO TO JAIL!")
-            action_text = font.render(action, True,hex_to_rgb("#000000"))
-            action_text_rect = action_text.get_rect(center = (screen.get_width()/1.35, screen.get_height()/2))
-            screen.blit(action_text,action_text_rect)
+            action_lines = [f"GO TO JAIL!"]
+            display_text(action_lines)
             square_object.action(player)
             return
         elif square_object.square_type == "tax":
-            action = [ (f"Oh no! Landed on {square_object.name}!"), 
-                        (f"Pay 10% of Balance = {int(player.balance * 0.1)}") , 
-                        (f"New Balance = {player.balance - int(player.balance * 0.1)}") ]
+            action_lines = [f"Oh no! Landed on {square_object.name}!", f"Pay 10% of Balance = {int(player.balance * 0.1)}", 
+                f"New Balance = {player.balance - int(player.balance * 0.1)}",
+            ] 
             square_object.action(player)
-            action_text = [font.render(line, True, hex_to_rgb("#000000")) for line in action]
-            action_text_rect = [text.get_rect(center=(screen.get_width() / 1.35, screen.get_height() / (3 - i * 0.25))) for i, text in enumerate(action_text)]
-            for surface,rect in zip(action_text, action_text_rect):
-                screen.blit(surface,rect)
+            display_text(action_lines)
             return
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
         pygame.display.update()
         clock.tick(FPS)
+
     pygame.quit()
-    quit()  
+    quit()
+
+def display_text(action_lines):
+        font = pygame.font.Font(os.path.join("assets", "images", "Minecraft.ttf"), 30)
+        text_color = util.hex_to_rgb("#000000")
+        action_text = [font.render(line, True, text_color) for line in action_lines]
+        action_text_rect = [
+            text.get_rect(center=(screen.get_width() / 1.35, screen.get_height() / (3 - i * 0.25)))
+            for i, text in enumerate(action_text)
+        ]
+        for surface, rect in zip(action_text, action_text_rect):
+            screen.blit(surface, rect)
+        pygame.display.update()
+        return action_text_rect
