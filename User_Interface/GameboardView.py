@@ -84,7 +84,7 @@ class GameboardView:
                 width = self.border_width
             )
 
-    def render_player_move(self, players:list[Player], current_player: Player, steps: int):
+    def render_player_move(self, players:list[Player], current_player: Player | None, steps: int):
         for step in range(steps):
             self.screen.blit(self.board_surface, (0, 0))
 
@@ -106,15 +106,16 @@ class GameboardView:
             
     def dice_is_being_rolled(self, players: list[Player], current_player_index:int):
         random.seed()
-        #dice_rolls =(random.randint(1, 6), random.randint(1, 6))
+        dice_rolls =(random.randint(1, 6), random.randint(1, 6))
         dice_surfaces = [pygame.transform.smoothscale(pygame.image.load(os.path.join("assets", "images", f"dice_{index}.png")), (50, 50)) for index in range(1, 7)]
-        dice_rolls = (2,4)
         steps = sum(dice_rolls)
         if players[current_player_index].in_jail():
             if all(roll == dice_rolls[0] for roll in dice_rolls):
                 players[current_player_index].set_jail_status(False)
                 players[current_player_index].move(steps)
                 self.render_player_move(players, players[current_player_index], steps)
+            else:
+                self.render_player_move(players, None, 1)
         else:
             players[current_player_index].move(steps)
             self.render_player_move(players, players[current_player_index], steps)

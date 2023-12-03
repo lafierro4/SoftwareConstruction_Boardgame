@@ -81,8 +81,7 @@ class Cloneopoly:
                 if self.players[current_player_index].is_bankrupt():
                     current_player_index = (current_player_index + 1) % len(self.players)
                 elif self.remaining_players == 1:
-                    # victory_screen(self.players[current_player_index])
-                    pass
+                    self.victory_screen(self.players[current_player_index].name)
                 else:
                     break
 
@@ -138,6 +137,35 @@ class Cloneopoly:
             clock.tick(FPS)
         pygame.quit()
         quit()
+    
+    def victory_screen(self, winner_name: str) -> None:
+        win_image = pygame.transform.smoothscale(pygame.image.load(os.path.join("assets", "images", "win.jpg")), (self.gameboard.screen.get_width(), self.gameboard.screen.get_height()))
+        text_font = pygame.font.Font(os.path.join("assets","images", "Minecraft.ttf"), 35)
+        start_time = pygame.time.get_ticks()
+        clock = pygame.time.Clock()
+        delay_duration = 3000
+    
+        while pygame.time.get_ticks() - start_time < delay_duration:
+            pygame.display.update()
+            clock.tick(FPS)
+    
+        action = f"{winner_name} Has Won! Click to play again."
+        action_text = text_font.render(action, True, util.hex_to_rgb("#000000"))
+        action_text_rect = action_text.get_rect(center = (self.gameboard.screen.get_width() * 0.30, self.gameboard.screen.get_height() * 0.8))
+    
+        self.gameboard.screen.blit(win_image, (0,0))
+        self.gameboard.screen.blit(action_text, action_text_rect)
+    
+        while True:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    quit()
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    if event.button == 1:
+                        Cloneopoly()
+            pygame.display.update()
+            clock.tick(FPS)
 
     def display_action(self,player:Player, board_index:int):
         current_space = self.gameboard.board[board_index]
@@ -264,7 +292,7 @@ class Cloneopoly:
                 else:
                     action_lines = [f"Landed on Free Parking"]
             case "jail":
-                action_lines = [f"Landed on Jail, Just Visiting"]
+                action_lines = [(f"Must Roll Doubles to Leave Jail!") if player.in_jail() else (f"Landed on Jail, Just Visiting")]
             case "go_to_jail":
                 action_lines = [f"GO TO JAIL!"]
             case "tax":
