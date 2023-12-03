@@ -21,6 +21,7 @@ class Cloneopoly:
         self.players: List[Player] = []
         self.player_buttons: List[util.Button] = []
         self.number_of_players = MenuView.main_menu(SCREEN)
+        self.remaining_players:int
         self.initialize_game(self.number_of_players)
 
     def initialize_game(self,number_of_players):
@@ -30,10 +31,10 @@ class Cloneopoly:
         is_ai = False
         number_of_humans = number_of_players[0] # type: ignore
         number_of_bots = number_of_players[1] # type: ignore
-        number_players = number_of_humans + number_of_bots
+        self.remaining_players = number_of_humans + number_of_bots
         if number_of_bots > 0:
             is_ai = True
-        player_info = PlayerInfoView.player_select_screen(SCREEN, number_players, is_ai) # type: ignore
+        player_info = PlayerInfoView.player_select_screen(SCREEN, self.remaining_players, is_ai) # type: ignore
         SCREEN.fill("white")
         self.gameboard= GameboardView.GameboardView(SCREEN)
         self.gameboard.setup_board()
@@ -72,13 +73,18 @@ class Cloneopoly:
         
         dice_button = util.ImageButton(((self.gameboard.screen.get_width() / 1.75), (self.gameboard.screen.get_height() / 1.20)), dice_img)
         run = True
-        roll_dice_timer = None  # Timer to control automatic dice rolling for AI player
         is_ai = False
         clock = pygame.time.Clock()
         current_player_index = 0
         while run:
-            if self.players[current_player_index].is_bankrupt():
-                current_player_index = (current_player_index + 1) % len(self.players)
+            while True:
+                if self.players[current_player_index].is_bankrupt():
+                    current_player_index = (current_player_index + 1) % len(self.players)
+                elif self.remaining_players == 1:
+                    # victory_screen(self.players[current_player_index])
+                    pass
+                else:
+                    break
 
             is_ai = self.players[current_player_index].name.startswith("AI")
             mouse_pos = pygame.mouse.get_pos()
@@ -96,6 +102,7 @@ class Cloneopoly:
 
             turn_text = text_font.render(f"{self.players[current_player_index]._name}'s Turn, Roll Those Dice!", True, util.hex_to_rgb("#000000"))
             turn_text_rect = turn_text.get_rect(center=(self.gameboard.screen.get_width() / 1.35, self.gameboard.screen.get_height()/3.5))
+            self.gameboard.screen.fill((255,255,255), turn_text_rect)
             self.gameboard.screen.blit(turn_text, turn_text_rect)
             if is_ai:
                 start_time = pygame.time.get_ticks()
@@ -119,6 +126,8 @@ class Cloneopoly:
                         if dice_button.check_clicked(mouse_pos):
                             updated_player_space = self.gameboard.dice_is_being_rolled(self.players, current_player_index)
                             self.display_action(updated_player_space[0],updated_player_space[1])
+                            if self.players[current_player_index].is_bankrupt():
+                                self.handle_bankrupt(self.players[current_player_index])
                             current_player_index = (current_player_index + 1) % len(self.players)
                             if not self.players:
                                 current_player_index = 0
@@ -213,7 +222,6 @@ class Cloneopoly:
                     f"pay ${property_object.calculate_rent(player)}",
                     ]
                 if not transfer_successful:
-                    self.handle_bankrupt(player)
                     action_lines.append(f"Not enough funds...{player.name} is bankrupt!")
                 else:
                     action_lines.append(f"{player.name}'s new Balance ${player.balance}")
@@ -243,6 +251,7 @@ class Cloneopoly:
         if player.button is not None:
             if player.button in self.player_buttons:
                 self.player_buttons.remove(player.button)
+                self.remaining_players -= 1
         
 
 
