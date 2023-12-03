@@ -1,11 +1,13 @@
 # Cloneopoly
 # Responsible for managing and coordination the game’s user interface. Interacts with other UI components for rendering and displaying the game information.
-# This is where we will have all the pygame components, along with the other UI classes
+# This is where we wigameboard.screenll have all the pygame components, along with the other UI classes
 
 # TO DO: Agree on short cut names for imports
 import pygame,os
 from Game_Engine.Player import Player
+from Game_Engine import Property, Square
 from User_Interface import MenuView, GameboardView, PlayerInfoView, util
+from Computer.Strategy import Strategy
 
 # Initialze Pygame Window and sets the default window size to be 1280 by 720
 pygame.init()
@@ -52,7 +54,6 @@ class Cloneopoly:
         pygame.display.flip()
         return players
 
-
     def main_game_loop(self,players):
         pygame.mixer.init()
         pygame.mixer.music.load(os.path.join("assets","sounds","mysteryLand.mp3"))
@@ -68,7 +69,6 @@ class Cloneopoly:
             player_info_buttons.append(util.Button(((self.gameboard.screen.get_width() / 17.5) + (index * (self.gameboard.screen.get_width()/8.5)), (self.gameboard.screen.get_height()/1.05)), 
                                               text_input= (f"{player.name}'s Info"), font= button_font, base_color= "#000000",hover_color="#4100ff",image=button_background))
         dice_button = util.ImageButton(((self.gameboard.screen.get_width() / 1.75), (self.gameboard.screen.get_height() / 1.20)), dice_img)
-        dice_surfaces = [pygame.transform.smoothscale(pygame.image.load(os.path.join("assets", "images", f"dice_{index}.png")), (50, 50)) for index in range(1, 7)]
         run = True
         roll_dice_timer = None  # Timer to control automatic dice rolling for AI player
         is_ai = False
@@ -97,7 +97,8 @@ class Cloneopoly:
                 while pygame.time.get_ticks() - start_time < delay_duration:
                     pygame.display.update()
                     clock.tick(FPS)
-                self.gameboard.dice_is_being_rolled(players, dice_surfaces, current_player_index)
+                updated_player_space = self.gameboard.dice_is_being_rolled(players, current_player_index)
+                self.display_action(updated_player_space[0],updated_player_space[1])
                 current_player_index = (current_player_index + 1) % len(players)
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -105,14 +106,156 @@ class Cloneopoly:
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if event.button == 1:
                         if dice_button.check_clicked(mouse_pos):
-                            self.gameboard.dice_is_being_rolled(players, dice_surfaces, current_player_index)
+                            updated_player_space = self.gameboard.dice_is_being_rolled(players, current_player_index)
+                            self.display_action(updated_player_space[0],updated_player_space[1])
                             current_player_index = (current_player_index + 1) % len(players)
                         for current_player,player_button in enumerate(player_info_buttons):
                             if player_button.check_clicked(mouse_pos):
                                 PlayerInfoView.display_player_info(player= players[current_player])
             pygame.display.update()
             clock.tick(FPS)
+        pygame.quit()
+        quit()
+
+    def display_action(self,player:Player, board_index:int):
+        print("action")
+        current_space = self.gameboard.board[board_index]
+        if isinstance(current_space,Property.Property):
+            self._display_property_action(current_space,player)
+        elif isinstance(current_space,Square.Square):
+            self._display_square_action(current_space,player)
+        return
+
+    def property_is_being_bought(self, player:Player, property_object: Property.Property, text_rect):
+        font = pygame.font.Font(os.path.join("assets", "images", "Minecraft.ttf"), 30)
+        if player.balance >= property_object.price:
+            property_object.action(player)
+            player.add_property(property_object)
+            #Move Action phrases to Property action method
+            action = [(f"Player {player.name} bought"),
+                        (f"{property_object.name} for ${property_object.price}!"),
+                        (f"New Balance ${player.balance}")]
+            for inx,rect in enumerate(text_rect):
+                self.gameboard.screen.fill((255, 255, 255), text_rect[inx])
+            action_text = [font.render(line, True, util.hex_to_rgb("#000000")) for line in action]
+            action_text_rect = [text.get_rect(center=(self.gameboard.screen.get_width() / 1.35, self.gameboard.screen.get_height() / (3 - i * 0.25))) for i, text in enumerate(action_text)]
+            for surface,rect in zip(action_text, action_text_rect):
+                self.gameboard.screen.blit(surface,rect)
+            return
+        else:
+            action = [(f"Unable to buy{property_object.name} for ${property_object.price}"),
+                        (f"Not Enough Funds, Player Balance ${player.balance}")]
+            for inx,rect in enumerate(text_rect):
+                self.gameboard.screen.fill((255, 255, 255), text_rect[inx])
+            action_text = [font.render(line, True, util.hex_to_rgb("#000000")) for line in action]
+            action_text_rect = [text.get_rect(center=(self.gameboard.screen.get_width() / 1.35, self.gameboard.screen.get_height() / (3 - i * 0.25))) for i, text in enumerate(action_text)]
+            for surface,rect in zip(action_text, action_text_rect):
+                self.gameboard.screen.blit(surface,rect)
+            return
     
+    def _display_property_action(self, property_object: Property.Property, player: Player):
+        print("propert display")
+        font = pygame.font.Font(os.path.join("assets", "images", "Minecraft.ttf"), 30)
+        clock = pygame.time.Clock()
+        run = True
+        is_ai = player.name.startswith("AI")
+        text_color = util.hex_to_rgb("#000000")
+
+        while run:
+            if not property_object.is_owned():
+                action_lines = [f"Would you like to buy", f"{property_object.name}", f"for ${property_object.price}"]
+                if is_ai:
+                    if Strategy.should_buy_property(property_object, player):
+                        text_rect = self.display_text(action_lines)
+                        self.property_is_being_bought(player, property_object, text_rect)
+                        return
+                    else:
+                        # AI Player did not buy the property
+                        action_lines[0] = f"{player.name} chose not to buy"
+                        self.display_text(action_lines)
+                        return
+                else:
+                    text_rect = self.display_text(action_lines)
+                    yes_button = util.Button((self.gameboard.screen.get_width() / 1.25 - 150, self.gameboard.screen.get_height() / 2), "YES", font,
+                                            text_color, "#00ff00")
+                    no_button = util.Button((self.gameboard.screen.get_width() / 1.25, self.gameboard.screen.get_height() / 2), "NO", font,
+                                            text_color, "#ff0000")
+
+                    mouse_pos = pygame.mouse.get_pos()
+                    for button in [yes_button, no_button]:
+                        button.change_color(mouse_pos)
+                        button.update(self.gameboard.screen)
+
+                    for event in pygame.event.get():
+                        if event.type == pygame.QUIT:
+                            run = False
+                        elif event.type == pygame.MOUSEBUTTONDOWN:
+                            if yes_button.check_clicked(mouse_pos):
+                                self.property_is_being_bought(player, property_object, text_rect)
+                                return
+                            elif no_button.check_clicked(mouse_pos):
+                                return
+
+            elif property_object.owner is not player:
+                property_object.action(player)
+                action_lines = [ f"Player {property_object.owner_name}",f"owns {property_object.name},",
+                    f"pay ${property_object.calculate_rent(player)}", f"{player.name}'s new Balance ${player.balance}",
+                ]
+                self.display_text(action_lines)
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        run = False
+                return
+            else:
+                action_lines = [f"You own {property_object.name}"]
+                self.display_text(action_lines)
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        run = False
+                return
+
+            pygame.display.update()
+            clock.tick(FPS)
 
         pygame.quit()
         quit()
+
+
+    def _display_square_action(self, square_object: Square.Square, player: Player):
+        print("space display")
+        clock = pygame.time.Clock()
+        match(square_object.square_type):
+            case "corner":
+                if square_object.name == "Go":
+                    action_lines = [f"Landed on {square_object.name}, collect $200"]
+                else:
+                    action_lines = [f"Landed on Free Parking"]
+            case "jail":
+                action_lines = [f"Landed on Jail, Just Visiting"]
+            case "go_to_jail":
+                action_lines = [f"GO TO JAIL!"]
+            case "tax":
+                action_lines = [f"Oh no! Landed on {square_object.name}!", f"Pay 10% of Balance = {int(player.balance * 0.1)}", 
+                    f"New Balance = {player.balance - int(player.balance * 0.1)}",
+                ] 
+            case _:
+                action_lines = f"Error Square Type\nNot Found"
+
+        square_object.action(player)
+        self.display_text(action_lines)
+        pygame.display.update()
+        clock.tick(FPS)
+
+    def display_text(self, action_lines):
+        print("text")
+        font = pygame.font.Font(os.path.join("assets", "images", "Minecraft.ttf"), 30)
+        text_color = util.hex_to_rgb("#000000")
+        action_text = [font.render(line, True, text_color) for line in action_lines]
+        action_text_rect = [
+            text.get_rect(center=(self.gameboard.screen.get_width() / 1.35, self.gameboard.screen.get_height() / (3 - i * 0.25)))
+            for i, text in enumerate(action_text)
+        ]
+        for surface, rect in zip(action_text, action_text_rect):
+            self.gameboard.screen.blit(surface, rect)
+        pygame.display.update()
+        return action_text_rect
