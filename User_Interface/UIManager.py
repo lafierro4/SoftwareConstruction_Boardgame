@@ -21,14 +21,15 @@ def start_game(number_players):
     """
     run = True
     clock = pygame.time.Clock()
-    menu_results = title_menu()
-    is_ai = False
-    number_of_humans = menu_results[0] # type: ignore
-    number_of_bots = menu_results[1] # type: ignore
-    number_players = number_of_humans + number_of_bots
-    if number_of_bots > 0:
-        is_ai = True
     while run:
+        menu_results = title_menu()
+        is_ai = False
+        number_of_humans = menu_results[0] # type: ignore
+        number_of_bots = menu_results[1] # type: ignore
+        number_players = number_of_humans + number_of_bots
+        if number_of_bots > 0:
+            is_ai = True
+
         player_info = PlayerInfoView.player_select_screen(SCREEN, number_players, is_ai) # type: ignore
         initialize_gameboard(player_info)
         for event in pygame.event.get():

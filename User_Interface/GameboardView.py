@@ -157,6 +157,7 @@ class GameboardView:
         dice_img = pygame.transform.smoothscale(pygame.image.load(os.path.join("assets", "images", "dice.png")), (50, 50))
         button_background = pygame.transform.smoothscale(pygame.image.load(os.path.join("assets","images","button_background.png")), 
                                                          ((self.screen.get_width()/8.5),(self.screen.get_height()/7)))
+        win_image = pygame.transform.smoothscale(pygame.image.load(os.path.join("assets", "images", "win.jpg")), (self.screen.get_width(), self.screen.get_height()))
         player_info_buttons = []
         for index, player in enumerate(players):
             player_info_buttons.append(Button(((self.screen.get_width() / 17.5) + (index * (self.screen.get_width()/8.5)), (self.screen.get_height()/1.05)), 
@@ -185,6 +186,33 @@ class GameboardView:
                 box_rect = pygame.Rect(text_rect.x - 10, text_rect.y - 5, text_rect.width + 20, text_rect.height + 10)
                 pygame.draw.rect(self.screen, (255, 0, 0), box_rect, 2)
                 self.screen.blit(text_surface, text_rect)
+            
+            active_players = [player for player in players if not player.is_bankrupt()]
+            if len(active_players) == 1:
+                start_time = pygame.time.get_ticks()
+                delay_duration = 3000
+
+                while pygame.time.get_ticks() - start_time < delay_duration:
+                    pygame.display.update()
+                    clock.tick(FPS)
+
+                action = f"{active_players[0].name} Has Won! Click to play again."
+                action_text = text_font.render(action, True, hex_to_rgb("#000000"))
+                action_text_rect = action_text.get_rect(center = (self.screen.get_width() * 0.30, self.screen.get_height() * 0.8))
+
+                self.screen.blit(win_image, (0,0))
+                self.screen.blit(action_text, action_text_rect)
+                
+                while True:
+                    for event in pygame.event.get():
+                        if event.type == pygame.QUIT:
+                            pygame.quit()
+                            quit()
+                        if event.type == pygame.MOUSEBUTTONDOWN:
+                            if event.button == 1:
+                                return
+                    pygame.display.update()
+                    clock.tick(FPS)
 
             turn_text = text_font.render(f"{players[current_player_index]._name}'s Turn, Roll Those Dice!", True, hex_to_rgb("#000000"))
             turn_text_rect = turn_text.get_rect(center=(self.screen.get_width() / 1.35, self.screen.get_height()/3.5))
@@ -215,10 +243,6 @@ class GameboardView:
                                 display_player_info(players[current_player])
             pygame.display.update()
             clock.tick(FPS)
-    
-
-        pygame.quit()
-        quit()
 
     def dice_is_being_rolled(self, players, dice_surfaces, current_player_index):
         dice_rolls =(random.randint(1, 6), random.randint(1, 6))
