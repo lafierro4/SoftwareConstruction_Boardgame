@@ -1,13 +1,12 @@
 from abc import ABC, abstractmethod
-from Game_Engine.Player import Player
 
 
-class Space(ABC):
+class BoardSpace(ABC):
     """Represents an abstract space on the Monopoly board."""
 
-    def __init__(self, name: str, square_type: str, color: str):
+    def __init__(self, name: str, space_type: str, color: str):
         self._name = name
-        self._square_type = square_type
+        self._space_type = space_type
         self._color = color
     
     @property
@@ -15,8 +14,8 @@ class Space(ABC):
         return self._name
 
     @property
-    def square_type(self) -> str:
-        return self._square_type
+    def space_type(self) -> str:
+        return self._space_type
 
     @property
     def color(self) -> str:
@@ -24,7 +23,7 @@ class Space(ABC):
 
 
     @abstractmethod
-    def action(self, player: Player) -> None:
+    def action(self, player) -> None:
         """
         Executes the action taken when a players lands on this space.
 

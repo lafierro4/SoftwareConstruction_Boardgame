@@ -1,8 +1,8 @@
 from Game_Engine.Player import Player
-from Game_Engine.Space import Space
+from Game_Engine.BoardSpace import BoardSpace
 
 
-class Square(Space):
+class Square(BoardSpace):
     """Represents a square on the Monopoly board."""
 
     def __init__(self, name: str, square_type: str, color: str = "#cce6cf"):
@@ -10,7 +10,7 @@ class Square(Space):
             color = "#cce6cf"
         elif square_type == "tax":
             color = "#a0c0c0"
-        Space.__init__(self, name, square_type, color)
+        BoardSpace.__init__(self, name, square_type, color)
 
     def action(self, player: Player) -> None:
         """
@@ -19,13 +19,13 @@ class Square(Space):
         Args:
             player: The player that has landed on the square.
         """
-        if self.square_type == "corner":
+        if self.space_type == "corner":
             pass
-        elif self.square_type == "jail":
+        elif self.space_type == "jail":
             self._jail(player)
-        elif self.square_type == "go_to_jail":
+        elif self.space_type == "go_to_jail":
             self._go_to_jail_action(player)
-        elif self.square_type == "tax":
+        elif self.space_type == "tax":
             self._tax_action(player)
 
     def _jail(self, player: Player) -> None:
@@ -51,8 +51,8 @@ class Square(Space):
         return self._name
 
     @property
-    def square_type(self) -> str:
-        return self._square_type
+    def space_type(self) -> str:
+        return self._space_type
 
     @property
     def color(self) -> str:

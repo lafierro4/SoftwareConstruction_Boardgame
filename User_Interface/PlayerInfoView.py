@@ -150,22 +150,22 @@ def display_player_info(player: Player):
             selected_index = treeview_assets.index(selected_item)
             if player.assets != None:
                 selected_asset = player.assets[selected_index]
-                if selected_asset.square_type == "property":
+                if selected_asset.space_type == "property":
                     if selected_asset.num_houses <= 4:
-                        result = selected_asset.add_house()
+                        result = selected_asset.build_house()
                     else:
                         result = f"Maximum Houses Purchased for {selected_asset.name}"
                 else:
                     result = f"{selected_asset.name} is Not a Property\nUnable to Purchase Houses"
                 result_label.config(text=result)
+                balance_var.set(f"Player Balance: ${player.balance}")
             update_treeview()
-
 
     def update_treeview():
         treeview_assets.delete(*treeview_assets.get_children())
         if player.assets is not None:
             for asset in player.assets:
-                if asset.square_type == "property":
+                if asset.space_type == "property":
                     treeview_assets.insert("", "end",values=(asset.name, asset.num_houses, asset.current_rent, asset.house_price))
                 else:
                     treeview_assets.insert("", "end",values=(asset.name, "N/A", "N/A", "N/A"))

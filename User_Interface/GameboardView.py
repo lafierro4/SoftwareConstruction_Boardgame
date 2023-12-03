@@ -105,9 +105,9 @@ class GameboardView:
             
     def dice_is_being_rolled(self, players: list[Player], current_player_index:int):
         random.seed()
-        dice_rolls =(random.randint(1, 6), random.randint(1, 6))
+        #dice_rolls =(random.randint(1, 6), random.randint(1, 6))
         dice_surfaces = [pygame.transform.smoothscale(pygame.image.load(os.path.join("assets", "images", f"dice_{index}.png")), (50, 50)) for index in range(1, 7)]
-        #dice_rolls = (2,4)
+        dice_rolls = (2,4)
         steps = sum(dice_rolls)
         if players[current_player_index].in_jail():
             if all(roll == dice_rolls[0] for roll in dice_rolls):

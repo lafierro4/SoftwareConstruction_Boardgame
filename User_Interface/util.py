@@ -2,7 +2,8 @@
 # It also loads and holds images that the User Interface can refer to to draw onto the Screen
 
 import pygame,os
-from Game_Engine.Space import Space
+from typing import List
+from Game_Engine.BoardSpace import BoardSpace
 from Game_Engine.Property import Property
 from Game_Engine.Square import Square
 
@@ -89,7 +90,7 @@ def hex_to_rgb(hex_code) -> tuple[int, int, int]:
     r, g, b = int(hex_code[0:2], 16), int(hex_code[2:4], 16), int(hex_code[4:6], 16)
     return r, g, b
 
-def board_spaces() -> list[Space]:
+def board_spaces() -> List[BoardSpace]:
 	return [
             Square("Go","corner"),
             Property("Mediterranean Meals", "property", "#a37759", 60, [2, 10, 30, 90, 160, 250], 50),

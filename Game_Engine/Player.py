@@ -19,14 +19,14 @@
     #  Post-Condition: @ensures (\forall property in \old(player.properties): property.owner != player) 
     # Method signature: def handle_bankruptcy (self, player: Player) -> None: 
 
-import functools ,pygame
-
+import pygame
 
 class Player:
-    def __init__(self, name: str, token: pygame.Surface, space_size) -> None:
+    def __init__(self, name: str, token: pygame.Surface, space_size, button = None) -> None:
         self._name = name
         self._token = token
-        self._balance = 1500
+        self.button = button
+        self._balance = 500
         self._assets = []
         self._position = 0
         self._last_roll = 0
@@ -97,13 +97,20 @@ class Player:
         self._position_x = x
         self._position_y = y
     
-    def transfer_money(self, owner, amount: int) -> None:
+    def transfer_money(self, owner, amount: int) -> bool:
         """
         Pays rent out to a property owner.
+        returns True if transfer was successful otherwise
+        False if rent bankrupted player, transfers remaing balance to owner
         """
-        if self._balance >= amount:
-            self._balance -= amount
+        if (self._balance - amount) <= 0:
+            owner.balance += self.balance
+            self.balance = 0
+            return False
+        else:
             owner.balance += amount
+            self._balance -= amount
+            return True
 
     def add_property(self, property_item) -> None:
         self._assets.append(property_item)
@@ -118,7 +125,7 @@ class Player:
         self._in_jail = in_jail
 
     def owns_both_utilities(self) -> bool:
-        return sum(asset.square_type == "utility" for asset in self._assets) >= 2
+        return sum(asset.space_type == "utility" for asset in self._assets) >= 2
 
     @property
     def assets(self):

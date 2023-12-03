@@ -3,7 +3,7 @@
 # It allows players to navigate and make selections within the game. 
 
 import pygame, os
-from User_Interface.util import *
+from User_Interface.util import Button, ImageButton
 pygame.init()
 
 

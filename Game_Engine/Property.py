@@ -1,9 +1,9 @@
-from typing import Optional
-from Game_Engine.Space import Space
+from typing import Optional, List
+from Game_Engine.BoardSpace import BoardSpace
 from Game_Engine.Player import Player
 
 
-class Property(Space):
+class Property(BoardSpace):
     """
     Represents a property square on the Monopoly board.
 
@@ -17,7 +17,7 @@ class Property(Space):
     components of the game.
     """
 
-    def __init__(self, name: str, property_type: str, color: str, price: int, rent_values: list[int]= [], house_price: int= 0):
+    def __init__(self, name: str, property_type: str, color: str, price: int, rent_values: List[int] = [], house_price: int= 0):
         """
         Initializes a Property object with the specified attributes.
 
@@ -27,19 +27,24 @@ class Property(Space):
             price: The initial purchase value.
             rent_values: List of rent values in ascending order.
         """
-        Space.__init__(self, name, property_type, color)
+        BoardSpace.__init__(self, name, property_type, color)
         self._price = price
-        self._owner = None
+        self._owner:Optional[Player] = None
 
-        if property_type == "property":
+        if self.space_type == "property":
             self._rent_values = rent_values
             self._num_houses = 0
             self._house_price = house_price
         
+    def reset(self):
+        self._owner = None
+        if self.space_type == "property":
+            self._num_houses = 0
+
     def is_owned(self) -> bool:
         return self._owner is not None
 
-    def action(self, player: Player) -> None:
+    def action(self, player: Player) -> bool:
         """
         Allows the player to purchase the property or pay rent.
 
@@ -56,18 +61,31 @@ class Property(Space):
             self.change_owner(player)
             player.decrease_balance(self.price)
             self._owner = player
+            return True
         elif self._owner is not player:
             rent = self.calculate_rent(player)
-            player.transfer_money(self._owner, rent)
+            return player.transfer_money(self._owner, rent)
+        return True
 
-    def build_house(self) -> None:
-        """
-        Builds a house on the property.
+    def build_house(self):
+        if self.owner != None:
+            if self.space_type == "property":
+                if self.owner.balance > self.house_price:
+                    if self.num_houses <= 4:
+                        self.owner.decrease_balance(self.house_price) 
+                        self._num_houses += 1
+                        return (f"Successfully Bought a House for ${self.house_price}\nCurrent Number of Houses: {self.num_houses}")
+                    else:
+                        return f"Maximum Houses Purchased for {self.name}"
+                else:
+                    return (f"Insufficent funds to purchase house, House Price: ${self.house_price}")   
+            else:
+                return f"{self.name} is Not a Property\nUnable to Purchase Houses"
+        else:
+            return "Error Self Building Houses"
 
-        Allows the player to build a house so that rent my be increased. To do
-        so, the player must own all the properties on the color set.
-        """
-        pass
+
+
 
     def calculate_rent(self, player: Player) -> int:
         """
@@ -82,27 +100,11 @@ class Property(Space):
         Returns:
             The price of rent.
         """
-        if self.square_type == "property":
+        if self.space_type == "property":
             return self._rent_values[self._num_houses]
         else:
             multiplier = 4 if player.owns_both_utilities() else 10
             return multiplier * player.last_roll
-    
-    def add_house(self):
-        if self.owner != None:
-            if self.square_type == "property":
-                if self.owner.balance > self.house_price:
-                    if self.num_houses <= 4:
-                        self.owner.decrease_balance(self.house_price) 
-                        self._num_houses += 1
-                        return (f"Successfully Bought a House for ${self.house_price}\nCurrent Number of Houses: {self.num_houses}")
-                    else:
-                        return f"Maximum Houses Purchased for {self.name}"
-                else:
-                    return (f"Insufficent funds to purchase house, House Price: ${self.house_price}")   
-            else:
-                return f"{self.name} is Not a Property\nUnable to Purchase Houses"
-            
 
 
     def change_owner(self,player:Player) -> None:
