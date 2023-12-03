@@ -127,7 +127,7 @@ class GameboardView:
                 width = self.border_width
             )
 
-    def render_player_move(self, players:list[Player], current_player: Player, steps: int):
+    def render_player_move(self, players:list[Player], current_player: Player | None, steps: int):
         for step in range(steps):
             self.screen.blit(self.board_surface, (0, 0))
 
@@ -228,6 +228,9 @@ class GameboardView:
                 players[current_player_index].set_jail_status(False)
                 players[current_player_index].move(steps)
                 self.render_player_move(players, players[current_player_index], steps)
+            else:
+                # Updates screen even if player doesn't roll doubles
+                self.render_player_move(players, None, 1)
         else:
             players[current_player_index].move(steps)
             self.render_player_move(players, players[current_player_index], steps)
@@ -371,7 +374,7 @@ def _display_square_action(screen:pygame.Surface,square_object:Square, player:Pl
             square_object.action(player)
             return
         elif square_object.square_type == "jail":
-            action = (f"Landed on Jail, Just Visiting")
+            action = (f"Must Roll Doubles to Leave Jail!") if player.in_jail() else (f"Landed on Jail, Just Visiting")
             action_text = font.render(action, True,hex_to_rgb("#000000"))
             action_text_rect = action_text.get_rect(center = (screen.get_width()/1.35, screen.get_height()/2))
             screen.blit(action_text,action_text_rect)
