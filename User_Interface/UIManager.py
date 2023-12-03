@@ -118,7 +118,6 @@ class Cloneopoly:
         quit()
 
     def display_action(self,player:Player, board_index:int):
-        print("action")
         current_space = self.gameboard.board[board_index]
         if isinstance(current_space,Property.Property):
             self._display_property_action(current_space,player)
@@ -154,7 +153,6 @@ class Cloneopoly:
             return
     
     def _display_property_action(self, property_object: Property.Property, player: Player):
-        print("propert display")
         font = pygame.font.Font(os.path.join("assets", "images", "Minecraft.ttf"), 30)
         clock = pygame.time.Clock()
         run = True
@@ -222,7 +220,6 @@ class Cloneopoly:
 
 
     def _display_square_action(self, square_object: Square.Square, player: Player):
-        print("space display")
         clock = pygame.time.Clock()
         match(square_object.square_type):
             case "corner":
@@ -247,7 +244,6 @@ class Cloneopoly:
         clock.tick(FPS)
 
     def display_text(self, action_lines):
-        print("text")
         font = pygame.font.Font(os.path.join("assets", "images", "Minecraft.ttf"), 30)
         text_color = util.hex_to_rgb("#000000")
         action_text = [font.render(line, True, text_color) for line in action_lines]
