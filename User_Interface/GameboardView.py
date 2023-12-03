@@ -12,6 +12,7 @@ from User_Interface.util import *
 from AI.Strategy import Strategy
 
 class GameboardView:
+    #Sam- Added this 
     is_ai = False
     def __init__(self,screen:pygame.Surface):
         self.screen = screen
@@ -167,12 +168,14 @@ class GameboardView:
         clock = pygame.time.Clock()
         current_player_index = 0
         while run:
+            #Sam-added this line
             GameboardView.is_ai = players[current_player_index].name.startswith("AI")
             mouse_pos = pygame.mouse.get_pos()
             dice_button.update(self.screen)
             for button in player_info_buttons:
                 button.change_color(mouse_pos)
                 button.update(self.screen)
+            #Sam - added these 8 lines below for the balance
             margin = 10  
             for i, player in enumerate(players):
                 # display balance
@@ -186,6 +189,7 @@ class GameboardView:
             turn_text = text_font.render(f"{players[current_player_index]._name}'s Turn, Roll Those Dice!", True, hex_to_rgb("#000000"))
             turn_text_rect = turn_text.get_rect(center=(self.screen.get_width() / 1.35, self.screen.get_height()/3.5))
             self.screen.blit(turn_text, turn_text_rect)
+            #Sam- added this to check if its ai and roll the dice and move player without clicking dice
             if GameboardView.is_ai:
                 start_time = pygame.time.get_ticks()
                 # Adjust the delay time (in milliseconds) as needed
@@ -236,12 +240,8 @@ class GameboardView:
         current_space = self._board[square_index]
         if isinstance(current_space,Property):
             _display_property_action(self.screen,current_space,player)
-            # if GameboardView.is_ai:
-            #     ai_buy(current_space)
         elif isinstance(current_space,Square):
             _display_square_action(self.screen,current_space,player)
-            # if GameboardView.is_ai:
-            #     ai_buy(current_space)
         return
     
 def property_is_being_bought(player: Player, property_object: Property, action_text, action, action_text_rect, screen, font):
@@ -280,6 +280,7 @@ def _display_property_action(screen:pygame.Surface,property_object:Property,play
             action = [(f"Would you like to buy"),
                     (f"{property_object.name}"),
                         (f"for ${property_object.price}?")]
+            #Sam-added this if statement and everything inside it for ai
             if is_ai:
                 if Strategy.should_buy_property(property_object,player): 
                     action_text = [font.render(line, True, hex_to_rgb("#000000")) for line in action]
@@ -287,6 +288,7 @@ def _display_property_action(screen:pygame.Surface,property_object:Property,play
                     for surface,rect in zip(action_text, action_text_rect):
                         screen.blit(surface,rect)
                     property_is_being_bought(player, property_object, action_text, action, action_text_rect, screen, font)
+                    #handles the ai houses to buy houses randomly when ai reaches property
                     ai_buy_house(property_object)
                     return
                 else:

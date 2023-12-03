@@ -139,7 +139,7 @@ def player_select_screen(screen:pygame.Surface,number_of_players, vs_ai_mode):
         clock.tick(FPS)
     pygame.quit()
     quit()
-
+#Sam- added this for ai
 def ai_buy_house(property_asset: Property):
     if  property_asset.num_houses <= 4:
         num_houses_to_buy = Strategy.make_random_choice([0, 1, 2, 3, 4], [0.4, 0.5, 0.4, 0.2, 0.1])
@@ -212,6 +212,7 @@ def display_player_info(player: Player):
 
     if player.assets is not None:
         update_treeview()
+    #Sam-added this and the if statement for ai
     is_ai = player.name.startswith("AI")
     if not is_ai:
         add_house_button = tk.Button(root, font=("", 12), text="Buy House", command=buy_house)
