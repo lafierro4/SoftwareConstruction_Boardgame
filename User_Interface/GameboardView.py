@@ -2,7 +2,7 @@
 # In charge of rendering the game board, properties, and other visual
 # elements related to the game board. Handles user interactions with the game board, such as property selections and purchases.
 import pygame, os, random
-
+from typing import List
 FPS = 60
 WIDTH, HEIGHT = 1280, 720
 from Game_Engine.Square import Square
@@ -89,16 +89,17 @@ class GameboardView:
             self.screen.blit(self.board_surface, (0, 0))
 
             for player in players:
-                total_pos = (player.position - steps + step + 1) % 40 if player is current_player else player.position
-                offset_pos = (player.position - steps + step + 1) % 10 if player is current_player else player.position % 10
-                if total_pos < 10:
-                    self.screen.blit(player.token, (self.space_size * (11 - offset_pos), self.space_size * 11))
-                elif total_pos < 20:
-                    self.screen.blit(player.token, (self.space_size, self.space_size * (11 - offset_pos)))
-                elif total_pos < 30:
-                    self.screen.blit(player.token, (self.space_size * (offset_pos + 1), self.space_size))
-                else:
-                    self.screen.blit(player.token, (self.space_size * 11, self.space_size * (offset_pos + 1)))
+                if not player.is_bankrupt():
+                    total_pos = (player.position - steps + step + 1) % 40 if player is current_player else player.position
+                    offset_pos = (player.position - steps + step + 1) % 10 if player is current_player else player.position % 10
+                    if total_pos < 10:
+                        self.screen.blit(player.token, (self.space_size * (11 - offset_pos), self.space_size * 11))
+                    elif total_pos < 20:
+                        self.screen.blit(player.token, (self.space_size, self.space_size * (11 - offset_pos)))
+                    elif total_pos < 30:
+                        self.screen.blit(player.token, (self.space_size * (offset_pos + 1), self.space_size))
+                    else:
+                        self.screen.blit(player.token, (self.space_size * 11, self.space_size * (offset_pos + 1)))
             
             pygame.display.update()
             pygame.time.delay(250)

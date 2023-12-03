@@ -38,23 +38,21 @@ class Cloneopoly:
         self.gameboard= GameboardView.GameboardView(SCREEN)
         self.gameboard.setup_board()
         pygame.display.update()
-        self.players = self.initialize_players(player_info)
+        self.initialize_players(player_info)
         self.main_game_loop()
 
 
-    def initialize_players(self,player_info) -> List[Player]:
+    def initialize_players(self,player_info):
         player_names, player_tokens = player_info
         space_size = SCREEN.get_width() / 25.6
         tokens = util.token_image_surface(space_size/1.4)
-        players: List[Player] = []
         for name, token in zip(player_names,player_tokens):
             player = Player(name,tokens[token],space_size)
             player.set_position(space_size * 11, space_size * 11)
-            players.append(player)
+            self.players.append(player)
             SCREEN.blit(tokens[token], (player._position_x, player._position_y))
         
         pygame.display.flip()
-        return players
 
     def main_game_loop(self):
         pygame.mixer.init()
@@ -79,6 +77,9 @@ class Cloneopoly:
         clock = pygame.time.Clock()
         current_player_index = 0
         while run:
+            if self.players[current_player_index].is_bankrupt():
+                current_player_index = (current_player_index + 1) % len(self.players)
+
             is_ai = self.players[current_player_index].name.startswith("AI")
             mouse_pos = pygame.mouse.get_pos()
             dice_button.update(self.gameboard.screen)
@@ -88,8 +89,9 @@ class Cloneopoly:
                 button.update(self.gameboard.screen)
             #displays balance
             for i, player in enumerate(self.players):
-                text_balance = text_font.render(f"{player.name}'s Balance {player.balance}", False, util.hex_to_rgb("#000000"))
+                text_balance = text_font.render(f"{player.name}'s Balance ${player.balance}", False, util.hex_to_rgb("#000000"))
                 text_balance_rect = text_balance.get_rect(center=(self.gameboard.screen.get_width() / 1.35, self.gameboard.screen.get_height() / 16 + i * 30))
+                self.gameboard.screen.fill((255,255,255), text_balance_rect)
                 self.gameboard.screen.blit(text_balance, text_balance_rect)
 
             turn_text = text_font.render(f"{self.players[current_player_index]._name}'s Turn, Roll Those Dice!", True, util.hex_to_rgb("#000000"))
@@ -102,9 +104,13 @@ class Cloneopoly:
                 while pygame.time.get_ticks() - start_time < delay_duration:
                     pygame.display.update()
                     clock.tick(FPS)
-                updated_player_space = self.gameboard.dice_is_being_rolled(self.players, current_player_index)
+                updated_player_space = self.gameboard.dice_is_being_rolled(self.players,current_player_index)
                 self.display_action(updated_player_space[0],updated_player_space[1])
-                current_player_index = (current_player_index + 1) % len(self.players)
+                if self.players[current_player_index].is_bankrupt():
+                    self.handle_bankrupt(self.players[current_player_index])
+                current_player_index = (current_player_index + 1) % len(self.players)   
+                if not self.players:
+                    current_player_index = 0
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     run = False
@@ -114,6 +120,8 @@ class Cloneopoly:
                             updated_player_space = self.gameboard.dice_is_being_rolled(self.players, current_player_index)
                             self.display_action(updated_player_space[0],updated_player_space[1])
                             current_player_index = (current_player_index + 1) % len(self.players)
+                            if not self.players:
+                                current_player_index = 0
                         for player_index,player_button in enumerate(self.player_buttons):
                             if player_button.check_clicked(mouse_pos):
                                 PlayerInfoView.display_player_info(player= self.players[player_index])
@@ -232,10 +240,10 @@ class Cloneopoly:
         if player.assets is not None:
             for asset in player.assets:
                 asset.reset()
-        self.players.remove(player)
         if player.button is not None:
             if player.button in self.player_buttons:
                 self.player_buttons.remove(player.button)
+        
 
 
     def _display_square_action(self, square_object: Square.Square, player: Player):

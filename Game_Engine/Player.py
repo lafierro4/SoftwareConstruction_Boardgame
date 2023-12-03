@@ -116,7 +116,7 @@ class Player:
         self._assets.append(property_item)
 
     def is_bankrupt(self) -> bool:
-        return self._balance < 0
+        return self._balance <= 0
     
     def in_jail(self) -> bool:
         return self._in_jail
