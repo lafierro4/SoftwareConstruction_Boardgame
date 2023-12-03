@@ -2,7 +2,10 @@ FPS = 60
 import tkinter as tk
 from tkinter import font, ttk
 import pygame, os
+import random
 from Game_Engine.Player import Player
+from Game_Engine.Property import Property
+from AI.Strategy import Strategy
 from User_Interface.util import *
 
  
@@ -137,6 +140,18 @@ def player_select_screen(screen:pygame.Surface,number_of_players, vs_ai_mode):
     pygame.quit()
     quit()
 
+def ai_buy_house(property_asset: Property):
+    if  property_asset.num_houses <= 4:
+        num_houses_to_buy = Strategy.make_random_choice([0, 1, 2, 3, 4], [0.4, 0.5, 0.4, 0.2, 0.1])
+        for _ in range(num_houses_to_buy):
+            result =property_asset.add_house()
+    else:
+        return
+
+    
+
+            
+
 
 def display_player_info(player: Player):
     def on_select(event):
@@ -159,6 +174,8 @@ def display_player_info(player: Player):
                     result = f"{selected_asset.name} is Not a Property\nUnable to Purchase Houses"
                 result_label.config(text=result)
             update_treeview()
+
+
 
 
     def update_treeview():
@@ -195,12 +212,13 @@ def display_player_info(player: Player):
 
     if player.assets is not None:
         update_treeview()
+    is_ai = player.name.startswith("AI")
+    if not is_ai:
+        add_house_button = tk.Button(root, font=("", 12), text="Buy House", command=buy_house)
+        treeview_assets.bind('<<TreeviewSelect>>', on_select)
+        add_house_button.pack()
 
-    add_house_button = tk.Button(root, font=("", 12), text="Buy House", command=buy_house)
-    treeview_assets.bind('<<TreeviewSelect>>', on_select)
-    add_house_button.pack()
-
-    result_label = tk.Label(root, text="")
+    result_label = tk.Label(root, text="") 
     result_label.pack(pady=10)
 
     root.mainloop()

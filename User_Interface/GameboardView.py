@@ -12,6 +12,7 @@ from User_Interface.util import *
 from AI.Strategy import Strategy
 
 class GameboardView:
+    is_ai = False
     def __init__(self,screen:pygame.Surface):
         self.screen = screen
         self.space_size = screen.get_width() / 25.6
@@ -151,6 +152,7 @@ class GameboardView:
         pygame.mixer.music.play(loops= -1)
         text_font = pygame.font.Font(os.path.join("assets","images", "Minecraft.ttf"), 35)
         button_font = pygame.font.Font(os.path.join("assets","images", "Minecraft.ttf"), 20)
+        player_info_font = pygame.font.Font(os.path.join("assets", "images", "Minecraft.ttf"), 25)
         dice_img = pygame.transform.smoothscale(pygame.image.load(os.path.join("assets", "images", "dice.png")), (50, 50))
         button_background = pygame.transform.smoothscale(pygame.image.load(os.path.join("assets","images","button_background.png")), 
                                                          ((self.screen.get_width()/8.5),(self.screen.get_height()/7)))
@@ -162,26 +164,29 @@ class GameboardView:
         dice_surfaces = [pygame.transform.smoothscale(pygame.image.load(os.path.join("assets", "images", f"dice_{index}.png")), (50, 50)) for index in range(1, 7)]
         run = True
         roll_dice_timer = None  # Timer to control automatic dice rolling for AI player
-        is_ai = False
         clock = pygame.time.Clock()
         current_player_index = 0
         while run:
-            is_ai = players[current_player_index].name.startswith("AI")
+            GameboardView.is_ai = players[current_player_index].name.startswith("AI")
             mouse_pos = pygame.mouse.get_pos()
             dice_button.update(self.screen)
             for button in player_info_buttons:
                 button.change_color(mouse_pos)
                 button.update(self.screen)
-            #displays balance
+            margin = 10  
             for i, player in enumerate(players):
-                text_balance = text_font.render(f"{player.name}'s Balance {player.balance}", False, hex_to_rgb("#000000"))
-                text_balance_rect = text_balance.get_rect(center=(self.screen.get_width() / 1.35, self.screen.get_height() / 16 + i * 30))
-                self.screen.blit(text_balance, text_balance_rect)
+                # display balance
+                player_info = f"{player.name}'s Balance: {player.balance}"
+                text_surface = player_info_font.render(player_info, True, (0, 255, 0), (255, 255, 255))
+                text_rect = text_surface.get_rect(center=(self.screen.get_width() / 1.35, self.screen.get_height() / 16 + i * (30 + margin)))
+                box_rect = pygame.Rect(text_rect.x - 10, text_rect.y - 5, text_rect.width + 20, text_rect.height + 10)
+                pygame.draw.rect(self.screen, (255, 0, 0), box_rect, 2)
+                self.screen.blit(text_surface, text_rect)
 
             turn_text = text_font.render(f"{players[current_player_index]._name}'s Turn, Roll Those Dice!", True, hex_to_rgb("#000000"))
             turn_text_rect = turn_text.get_rect(center=(self.screen.get_width() / 1.35, self.screen.get_height()/3.5))
             self.screen.blit(turn_text, turn_text_rect)
-            if is_ai:
+            if GameboardView.is_ai:
                 start_time = pygame.time.get_ticks()
                 # Adjust the delay time (in milliseconds) as needed
                 delay_duration = 3000  
@@ -190,6 +195,9 @@ class GameboardView:
                     clock.tick(FPS)
                 self.dice_is_being_rolled(players, dice_surfaces, current_player_index)
                 current_player_index = (current_player_index + 1) % len(players)
+                
+                
+
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     run = False
@@ -200,7 +208,7 @@ class GameboardView:
                             current_player_index = (current_player_index + 1) % len(players)
                         for current_player,player_button in enumerate(player_info_buttons):
                             if player_button.check_clicked(mouse_pos):
-                                display_player_info(player= players[current_player])
+                                display_player_info(players[current_player])
             pygame.display.update()
             clock.tick(FPS)
     
@@ -209,9 +217,7 @@ class GameboardView:
         quit()
 
     def dice_is_being_rolled(self, players, dice_surfaces, current_player_index):
-        random.seed()
-        #dice_rolls =(random.randint(1, 6), random.randint(1, 6))
-        dice_rolls = (2,4)
+        dice_rolls =(random.randint(1, 6), random.randint(1, 6))
         steps = sum(dice_rolls)
         if players[current_player_index].in_jail():
             if all(roll == dice_rolls[0] for roll in dice_rolls):
@@ -224,14 +230,18 @@ class GameboardView:
         for index, roll in enumerate(dice_rolls):
             self.screen.blit(dice_surfaces[roll - 1], (self.screen.get_width() / (1.65 - index * 0.12), self.screen.get_height() / 1.25))
         self.display_action(players[current_player_index], players[current_player_index].position)
-
+        
 
     def display_action(self,player:Player, square_index):
         current_space = self._board[square_index]
         if isinstance(current_space,Property):
             _display_property_action(self.screen,current_space,player)
+            # if GameboardView.is_ai:
+            #     ai_buy(current_space)
         elif isinstance(current_space,Square):
             _display_square_action(self.screen,current_space,player)
+            # if GameboardView.is_ai:
+            #     ai_buy(current_space)
         return
     
 def property_is_being_bought(player: Player, property_object: Property, action_text, action, action_text_rect, screen, font):
@@ -277,6 +287,7 @@ def _display_property_action(screen:pygame.Surface,property_object:Property,play
                     for surface,rect in zip(action_text, action_text_rect):
                         screen.blit(surface,rect)
                     property_is_being_bought(player, property_object, action_text, action, action_text_rect, screen, font)
+                    ai_buy_house(property_object)
                     return
                 else:
                     # AI Player did not buy the property
