@@ -68,37 +68,38 @@ class PlayerSelectBox:
         screen.blit(self.forward_button.image, self.forward_button.rect.topleft)
 
 
-def player_select_screen(screen: pygame.Surface, number_of_players, vs_ai_mode: bool):
+def player_select_screen(screen:pygame.Surface,number_of_players, vs_ai_mode:bool):
     font = pygame.font.Font(os.path.join("assets", "images", "Minecraft.ttf"), 45)
-    bg_image = pygame.transform.smoothscale(pygame.image.load(os.path.join("assets", "images", "bg_settings.png")),
-                                            (screen.get_width(), screen.get_height()))
+    bg_image = pygame.transform.smoothscale(pygame.image.load(os.path.join("assets","images","bg_settings.png")), (screen.get_width(), screen.get_height()) )
     bg_image.set_alpha(128)
 
-    starting_y = (screen.get_height() - len(range(3)) * (50)) // 2
-    player_boxes = [PlayerSelectBox((screen.get_width() - 200) // 4, starting_y + i * (70),
-                                screen.get_width() // 2, 50, font) for i in range(number_of_players)]
+    # Making the Player Selection Boxes
+    player_boxes = []
+    for i in range(number_of_players): 
+        if vs_ai_mode:
+            player_box = PlayerSelectBox((screen.get_width() - 200) // 4,(screen.get_height() - len(range(3)) * 50) // 2 + i * (70), screen.get_width() // 2, 50, font)
+            player_boxes.append(player_box)
+            break
+        player_box = PlayerSelectBox((screen.get_width() - 200) // 4,(screen.get_height() - len(range(3)) * 50) // 2 + i * (70), screen.get_width() // 2, 50, font)
+        player_boxes.append(player_box)
 
     title_text = font.render("Insert Players Name and Choose a Token.", True, hex_to_rgb("#ffffff"))
-    title_text_rect = title_text.get_rect(center=(screen.get_width() / 2, screen.get_height() / 5))
-    box_width = title_text.get_width() + 20
-    box_height = title_text.get_height() + 20
-    box_rect = pygame.Rect(title_text_rect.centerx - box_width / 2, title_text_rect.centery - box_height / 2,
-                           box_width, box_height)
+    title_text_rect = title_text.get_rect(center= (screen.get_width()/2, screen.get_height()/5))
+    box_width, box_height= title_text.get_width() + 20,  title_text.get_height() + 20
+    box_rect = pygame.Rect(title_text_rect.centerx - box_width / 2, title_text_rect.centery - box_height / 2, box_width, box_height)
 
-    submit_button = Button(pos=(screen.get_width() / 2, screen.get_height() - 100), text_input="Start Game",
-                           font=font, base_color="#000000", hover_color="#0a18f3",
-                           image=pygame.transform.smoothscale(pygame.image.load(os.path.join("assets", "images", "button_background.png")),
-                                                               ((screen.get_width() / 2.5), (screen.get_height() / 5))))
+    submit_button = Button(pos=(screen.get_width() / 2, screen.get_height() - 100),text_input="Start Game",font= font, base_color="#000000",hover_color="#0a18f3",
+                            image= pygame.transform.smoothscale(pygame.image.load(os.path.join("assets","images","button_background.png")), 
+                                                         ((screen.get_width()/2.5),(screen.get_height()/5))))
     run = True
     clock = pygame.time.Clock()
-
     while run:
         if (bg_image.get_width(), bg_image.get_height()) != (screen.get_width(), screen.get_height()):
             bg_image = pygame.transform.smoothscale(bg_image, (screen.get_width(), screen.get_height()))
-        screen.blit(bg_image, (0, 0))
+        screen.blit(bg_image,(0,0))
         pygame.draw.rect(screen, hex_to_rgb("#ff2323"), box_rect)
-        pygame.draw.rect(screen, hex_to_rgb("#000000"), box_rect, 5)
-        screen.blit(title_text, title_text_rect)
+        pygame.draw.rect(screen, hex_to_rgb("#000000"), box_rect, 5)  
+        screen.blit(title_text,title_text_rect)
 
         submit_button.update(screen)
 
@@ -109,16 +110,20 @@ def player_select_screen(screen: pygame.Surface, number_of_players, vs_ai_mode: 
                 player_box.handle_event(event)
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if submit_button.check_clicked(event.pos):
-                    player_data = ([player_box.input_text for player_box in player_boxes],
-                                   [player_box.active_token for player_box in player_boxes],
-                                   [False] * number_of_players)
+                    player_data = (player_names, player_tokens, is_ai) = [], [],[]
+                    for player_box in player_boxes:
+                        player_names.append( player_box.input_text)
+                        player_tokens.append( player_box.active_token)
+                        is_ai.append(False)
+                        if vs_ai_mode and player_box.active_token > 0:
+                            player_box.input_text = player_box.input_text.split()[0]
                     if vs_ai_mode:
                         ai_players = number_of_players - 1
                         for i in range(ai_players):
-                            player_data[0].append(f"AI {i + 1}")
-                            player_data[1].append(i + 1)
-                            player_data[2].append(True)
-
+                            player_names.append(f"AI {i+1}")
+                            player_tokens.append(i + 1)
+                            is_ai.append(True)
+                        
                     return player_data
 
         for player_box in player_boxes:
@@ -126,10 +131,8 @@ def player_select_screen(screen: pygame.Surface, number_of_players, vs_ai_mode: 
 
         pygame.display.update()
         clock.tick(FPS)
-
     pygame.quit()
     quit()
-
 
 def display_player_info(player: Player):
     def on_select(event):
