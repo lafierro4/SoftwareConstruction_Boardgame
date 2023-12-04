@@ -217,6 +217,7 @@ class Cloneopoly:
                     if Strategy.should_buy_property(property_object, player):
                         text_rect = self.display_text(action_lines)
                         self.property_is_being_bought(player, property_object, text_rect)
+                        Strategy.ai_buy_house(property_object)
                         return
                     else:
                         # AI Player did not buy the property
