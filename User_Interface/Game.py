@@ -21,12 +21,13 @@ class Cloneopoly:
     Represents Cloneopoly the main game functions
 
     """
-    def __init__(self) -> None:
+    def __init__(self, is_test = False) -> None:
         self.players: List[Player] = []
         self.player_buttons: List[util.Button] = []
-        self.number_of_players = MenuView.main_menu(SCREEN)
         self.remaining_players:int
-        self.initialize_game(self.number_of_players)
+        if is_test == False:
+            self.number_of_players = MenuView.main_menu(SCREEN)
+            self.initialize_game(self.number_of_players)
 
     def initialize_game(self,number_of_players):
         """
