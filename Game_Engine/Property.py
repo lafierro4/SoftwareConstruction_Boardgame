@@ -70,9 +70,9 @@ class Property(BoardSpace):
     def build_house(self):
         if self.owner != None:
             if self.space_type == "property":
-                if self.owner.balance > self.house_price:
+                if self.owner.balance > self._house_price:
                     if self.num_houses <= 4:
-                        self.owner.decrease_balance(self.house_price) 
+                        self.owner.decrease_balance(self._house_price) 
                         self._num_houses += 1
                         return (f"Successfully Bought a House for ${self.house_price}\nCurrent Number of Houses: {self.num_houses}")
                     else:
@@ -123,7 +123,8 @@ class Property(BoardSpace):
     
     @property
     def house_price(self):
-        return self._house_price
+        if self.space_type == "property":
+            return self._num_houses
     
     @property
     def owner_name(self) -> Optional[str]:
