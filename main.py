@@ -3,7 +3,8 @@
 # TO DO Make it possible for the user to select the number of player in the command line with arguments
 # Example: python main.py 4 makes a game with 4 Players - LF
 
-from User_Interface.UIManager import start_game
+import User_Interface.UIManager as game
 
-if __name__ == '__main__':
-    start_game(4)
+
+if __name__ == "__main__":
+    game_start = game.Cloneopoly()

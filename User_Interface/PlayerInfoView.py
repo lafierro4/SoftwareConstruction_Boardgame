@@ -1,12 +1,11 @@
 FPS = 60 
 import tkinter as tk
-from tkinter import font, ttk
+from tkinter import ttk
 import pygame, os
-import random
 from Game_Engine.Player import Player
 from Game_Engine.Property import Property
-from AI.Strategy import Strategy
 from User_Interface.util import *
+from Computer.Strategy import Strategy
 
  
 class PlayerSelectBox:
@@ -140,11 +139,13 @@ def player_select_screen(screen:pygame.Surface,number_of_players, vs_ai_mode):
     pygame.quit()
     quit()
 #Sam- added this for ai
+
+
 def ai_buy_house(property_asset: Property):
     if  property_asset.num_houses <= 4:
         num_houses_to_buy = Strategy.make_random_choice([0, 1, 2, 3, 4], [0.4, 0.5, 0.4, 0.2, 0.1])
         for _ in range(num_houses_to_buy):
-            result =property_asset.add_house()
+            result =property_asset.build_house()
     else:
         return
 
@@ -165,24 +166,22 @@ def display_player_info(player: Player):
             selected_index = treeview_assets.index(selected_item)
             if player.assets != None:
                 selected_asset = player.assets[selected_index]
-                if selected_asset.square_type == "property":
+                if selected_asset.space_type == "property":
                     if selected_asset.num_houses <= 4:
-                        result = selected_asset.add_house()
+                        result = selected_asset.build_house()
                     else:
                         result = f"Maximum Houses Purchased for {selected_asset.name}"
                 else:
                     result = f"{selected_asset.name} is Not a Property\nUnable to Purchase Houses"
                 result_label.config(text=result)
+                balance_var.set(f"Player Balance: ${player.balance}")
             update_treeview()
-
-
-
 
     def update_treeview():
         treeview_assets.delete(*treeview_assets.get_children())
         if player.assets is not None:
             for asset in player.assets:
-                if asset.square_type == "property":
+                if asset.space_type == "property":
                     treeview_assets.insert("", "end",values=(asset.name, asset.num_houses, asset.current_rent, asset.house_price))
                 else:
                     treeview_assets.insert("", "end",values=(asset.name, "N/A", "N/A", "N/A"))

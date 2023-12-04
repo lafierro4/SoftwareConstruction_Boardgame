@@ -56,7 +56,7 @@ class TestCases(unittest.TestCase):
         property_instance = Property(name="TestProperty", property_type="property", color="#FF0000", price=500, rent_values=[100, 200, 300])
 
         # Set the property type to "property"
-        property_instance._square_type = "property"
+        property_instance._space_type = "property"
 
         # Set the number of houses to 2
         property_instance._num_houses = 2
