@@ -21,8 +21,8 @@ class TestCases(unittest.TestCase):
 
         # Test transferring money when player1 doesn't have sufficient balance
         player1.transfer_money(player2, 1000)
-        self.assertEqual(player1.balance, 800)  # Balance should not go below 0
-        self.assertEqual(player2.balance, 700)
+        self.assertEqual(player1.balance, 0)  # Balance should not go below 0
+        self.assertEqual(player2.balance, 1500)
 
     def test_add_property(self):
         player = Player(name="TestPlayer", token=pygame.Surface((50, 50)), space_size=10)
