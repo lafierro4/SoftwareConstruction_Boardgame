@@ -26,7 +26,7 @@ class Player:
         self._name = name
         self._token = token
         self.button = button
-        self._balance = 500
+        self._balance = 1500
         self._assets = []
         self._position = 0
         self._last_roll = 0
