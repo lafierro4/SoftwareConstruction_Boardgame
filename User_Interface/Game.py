@@ -152,7 +152,7 @@ class Cloneopoly:
     
         action = f"{winner_name} Has Won! Click to play again."
         action_text = text_font.render(action, True, util.hex_to_rgb("#000000"))
-        action_text_rect = action_text.get_rect(center = (self.gameboard.screen.get_width() * 0.30, self.gameboard.screen.get_height() * 0.8))
+        action_text_rect = action_text.get_rect(center = (self.gameboard.screen.get_width() / 2, self.gameboard.screen.get_height() /1.25))
     
         self.gameboard.screen.blit(win_image, (0,0))
         self.gameboard.screen.blit(action_text, action_text_rect)
@@ -164,7 +164,7 @@ class Cloneopoly:
                     quit()
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if event.button == 1:
-                        Cloneopoly()
+                        self.__init__()
             pygame.display.update()
             clock.tick(FPS)
 

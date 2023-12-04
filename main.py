@@ -2,7 +2,7 @@
 # use python main.py
 # creates a new instance of the Clonepoly game
 
-import User_Interface.UIManager as game
+import User_Interface.Game as game
 
 
 if __name__ == "__main__":
