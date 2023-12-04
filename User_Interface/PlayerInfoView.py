@@ -9,6 +9,9 @@ from Computer.Strategy import Strategy
 
  
 class PlayerSelectBox:
+    """
+        Player information and selection buttons are created
+    """
     def __init__(self, x, y, width, height, font):
         self.rect = pygame.Rect(x, y, width, height)
         self.font = font
@@ -69,6 +72,9 @@ class PlayerSelectBox:
 
 
 def player_select_screen(screen:pygame.Surface,number_of_players, vs_ai_mode:bool):
+    """
+        Handle the naming and token selections
+    """
     font = pygame.font.Font(os.path.join("assets", "images", "Minecraft.ttf"), 45)
     bg_image = pygame.transform.smoothscale(pygame.image.load(os.path.join("assets","images","bg_settings.png")), (screen.get_width(), screen.get_height()) )
     bg_image.set_alpha(128)
@@ -135,6 +141,9 @@ def player_select_screen(screen:pygame.Surface,number_of_players, vs_ai_mode:boo
     quit()
 
 def display_player_info(player: Player):
+    """
+        Display the windows for the separate players information
+    """
     def on_select(event):
         selected_index = treeview_assets.selection()
         if selected_index:
@@ -191,7 +200,7 @@ def display_player_info(player: Player):
 
     if player.assets is not None:
         update_treeview()
-    #Sam-added this and the if statement for ai
+
     is_ai = player.name.startswith("AI")
     if not is_ai:
         add_house_button = tk.Button(root, font=("", 12), text="Buy House", command=buy_house)

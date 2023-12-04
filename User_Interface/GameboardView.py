@@ -12,8 +12,9 @@ from Game_Engine.Player import Player
 from Computer.Strategy import Strategy
 
 class GameboardView:
-    #Sam- Added this 
-    is_ai = False
+    """
+        Draws and displays the game board and dice
+    """
     def __init__(self,screen:pygame.Surface):
         self.screen = screen
         self.space_size = screen.get_width() / 25.6
@@ -22,6 +23,9 @@ class GameboardView:
         self.border_width = 2
 
     def setup_board(self):
+        """
+        Displays the board
+        """
         self.board_surface.fill((255, 255, 255))
         index = 0
         for row in range(1, 14):
@@ -49,6 +53,9 @@ class GameboardView:
         self.screen.blit(self.board_surface, (0, 0))
 
     def draw_rectangle(self, x, y, is_corner, is_lateral, color):
+        """
+        Draws the board
+        """
         if is_corner:
             pygame.draw.rect(
                 self.board_surface,
@@ -87,6 +94,9 @@ class GameboardView:
             )
 
     def render_player_move(self, players:list[Player], current_player: Player | None, steps: int):
+        """
+        Renders the player movements
+        """
         for step in range(steps):
             self.screen.blit(self.board_surface, (0, 0))
 
@@ -107,6 +117,9 @@ class GameboardView:
             pygame.time.delay(250)
             
     def dice_is_being_rolled(self, players, current_player_index):
+        """
+        Rolls the dice
+        """
         random.seed()
         dice_rolls =(random.randint(1, 6), random.randint(1, 6))
         dice_surfaces = [pygame.transform.smoothscale(pygame.image.load(os.path.join("assets", "images", f"dice_{index}.png")), (50, 50)) for index in range(1, 7)]

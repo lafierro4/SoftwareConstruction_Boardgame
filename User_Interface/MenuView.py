@@ -60,6 +60,9 @@ def main_menu(SCREEN: pygame.Surface) -> tuple[int,int]:
     quit()
 
 def options_menu(SCREEN: pygame.Surface):
+    """
+        Displays the options menu.
+    """
 
     SCREEN.fill("white")
     default_size = (1280, 720)
@@ -125,6 +128,9 @@ def options_menu(SCREEN: pygame.Surface):
 
 
 def play_mode_selection(SCREEN: pygame.Surface) -> tuple[int,int]:
+    """
+        Displays the player mode selection screen 
+    """
     SCREEN.fill("white")
     bg_image = pygame.transform.smoothscale(pygame.image.load(os.path.join("assets", "images", "mode.png")), (SCREEN.get_width(), SCREEN.get_height()))
     pygame.mixer.music.load(os.path.join("assets","sounds","chooseAGame.mp3"))
@@ -159,6 +165,9 @@ def play_mode_selection(SCREEN: pygame.Surface) -> tuple[int,int]:
     quit()
 
 def players_selection(SCREEN: pygame.Surface, is_ai: bool) -> tuple[int,int]:
+    """
+        Displays the selection the player chose screen 
+    """
     SCREEN.fill("white")
     bg_image = pygame.transform.smoothscale(pygame.image.load(os.path.join("assets", "images", "select.png")), (SCREEN.get_width(), SCREEN.get_height()))
     button_font = pygame.font.Font(os.path.join("assets", "images", "brokenmachine.ttf"), 50)

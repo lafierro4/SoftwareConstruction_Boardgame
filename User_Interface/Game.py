@@ -2,7 +2,7 @@
 # Responsible for managing and coordination the game’s user interface. Interacts with other UI components for rendering and displaying the game information.
 # This is where we wigameboard.screenll have all the pygame components, along with the other UI classes
 
-# TO DO: Agree on short cut names for imports
+
 import pygame,os
 from typing import List
 from Game_Engine.Player import Player
@@ -17,6 +17,10 @@ SCREEN = pygame.display.set_mode((1280, 720))
 pygame.display.set_caption("Cloneopoly")
 
 class Cloneopoly:
+    """
+    Represents Cloneopoly the main game functions
+
+    """
     def __init__(self) -> None:
         self.players: List[Player] = []
         self.player_buttons: List[util.Button] = []
@@ -44,6 +48,9 @@ class Cloneopoly:
 
 
     def initialize_players(self,player_info:tuple[List[str],List[int],List[bool]]):
+        """
+        Intialize the players for the game.
+        """
         player_name, player_token, check_ai = player_info
         space_size = SCREEN.get_width() / 25.6
         tokens = util.token_image_surface(space_size/1.4)
@@ -57,6 +64,9 @@ class Cloneopoly:
         pygame.display.flip()
 
     def main_game_loop(self):
+        """
+        The main game loop where turns are handled.
+        """
         pygame.mixer.init()
         pygame.mixer.music.load(os.path.join("assets","sounds","mysteryLand.mp3"))
         pygame.mixer.music.set_volume(0.45)
@@ -140,6 +150,9 @@ class Cloneopoly:
         quit()
     
     def victory_screen(self, winner_name: str) -> None:
+        """
+        Handles what to display when a player has won the game.
+        """
         win_image = pygame.transform.smoothscale(pygame.image.load(os.path.join("assets", "images", "win.jpg")), (self.gameboard.screen.get_width(), self.gameboard.screen.get_height()))
         text_font = pygame.font.Font(os.path.join("assets","images", "Minecraft.ttf"), 35)
         start_time = pygame.time.get_ticks()
@@ -169,6 +182,9 @@ class Cloneopoly:
             clock.tick(FPS)
 
     def display_action(self,player:Player, board_index:int):
+        """
+        Handles what action to display 
+        """
         current_space = self.gameboard.board[board_index]
         if isinstance(current_space,Property.Property):
             self._display_property_action(current_space,player)
@@ -177,6 +193,9 @@ class Cloneopoly:
         return
 
     def property_is_being_bought(self, player:Player, property_object: Property.Property, text_rect):
+        """
+        Handles when a property is being purchased
+        """
         font = pygame.font.Font(os.path.join("assets", "images", "Minecraft.ttf"), 30)
         if player.balance >= property_object.price:
             property_object.action(player)
@@ -204,6 +223,9 @@ class Cloneopoly:
             return
     
     def _display_property_action(self, property_object: Property.Property, player: Player):
+        """
+        Handles when a player has landed on a property square
+        """
         font = pygame.font.Font(os.path.join("assets", "images", "Minecraft.ttf"), 30)
         clock = pygame.time.Clock()
         run = True
@@ -275,6 +297,9 @@ class Cloneopoly:
         quit()
 
     def handle_bankrupt(self,player:Player):
+        """
+        Handles when a player has gone bankrupt and will not play anymore
+        """
         if player.assets is not None:
             for asset in player.assets:
                 asset.reset()
@@ -286,6 +311,9 @@ class Cloneopoly:
 
 
     def _display_square_action(self, square_object: Square.Square, player: Player):
+        """
+        Handles when a player has landed on a square other than a property
+        """
         clock = pygame.time.Clock()
         match(square_object.space_type):
             case "corner":
@@ -310,6 +338,9 @@ class Cloneopoly:
         clock.tick(FPS)
 
     def display_text(self, action_lines):
+        """
+        Displays text to the screen
+        """
         font = pygame.font.Font(os.path.join("assets", "images", "Minecraft.ttf"), 30)
         text_color = util.hex_to_rgb("#000000")
         action_text = [font.render(line, True, text_color) for line in action_lines]
