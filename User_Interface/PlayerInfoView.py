@@ -68,7 +68,7 @@ class PlayerSelectBox:
         screen.blit(self.forward_button.image, self.forward_button.rect.topleft)
 
 
-def player_select_screen(screen:pygame.Surface,number_of_players, vs_ai_mode):
+def player_select_screen(screen:pygame.Surface,number_of_players, vs_ai_mode:bool):
     input_font = pygame.font.Font(os.path.join("assets", "images", "Minecraft.ttf"), 50)
     title_font = pygame.font.Font(os.path.join("assets", "images", "Minecraft.ttf"), 45)
     bg_image = pygame.transform.smoothscale(pygame.image.load(os.path.join("assets","images","bg_settings.png")), (screen.get_width(), screen.get_height()) )
@@ -117,10 +117,11 @@ def player_select_screen(screen:pygame.Surface,number_of_players, vs_ai_mode):
                 player_box.handle_event(event)
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if submit_button.check_clicked(event.pos):
-                    player_data = (player_names, player_tokens) = [], []
+                    player_data = (player_names, player_tokens, is_ai) = [], [],[]
                     for player_box in player_boxes:
                         player_names.append( player_box.input_text)
                         player_tokens.append( player_box.active_token)
+                        is_ai.append(False)
                         if vs_ai_mode and player_box.active_token > 0:
                             player_box.input_text = player_box.input_text.split()[0]
                     if vs_ai_mode:
@@ -128,6 +129,7 @@ def player_select_screen(screen:pygame.Surface,number_of_players, vs_ai_mode):
                         for i in range(ai_players):
                             player_names.append(f"AI {i+1}")
                             player_tokens.append(i + 1)
+                            is_ai.append(True)
                         
                     return player_data
 

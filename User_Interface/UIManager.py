@@ -43,15 +43,16 @@ class Cloneopoly:
         self.main_game_loop()
 
 
-    def initialize_players(self,player_info):
-        player_names, player_tokens = player_info
+    def initialize_players(self,player_info:tuple[List[str],List[int],List[bool]]):
+        player_name, player_token, check_ai = player_info
         space_size = SCREEN.get_width() / 25.6
         tokens = util.token_image_surface(space_size/1.4)
-        for name, token in zip(player_names,player_tokens):
-            player = Player(name,tokens[token],space_size)
+        for name, token, check_ai in zip(player_name, player_token, check_ai):
+            player = Player(name,tokens[token],space_size,is_ai= check_ai)
             player.set_position(space_size * 11, space_size * 11)
             self.players.append(player)
             SCREEN.blit(tokens[token], (player._position_x, player._position_y))
+
         
         pygame.display.flip()
 
@@ -85,7 +86,7 @@ class Cloneopoly:
                 else:
                     break
 
-            is_ai = self.players[current_player_index].name.startswith("AI")
+            is_ai = self.players[current_player_index].is_ai
             mouse_pos = pygame.mouse.get_pos()
             dice_button.update(self.gameboard.screen)
             
@@ -206,7 +207,7 @@ class Cloneopoly:
         font = pygame.font.Font(os.path.join("assets", "images", "Minecraft.ttf"), 30)
         clock = pygame.time.Clock()
         run = True
-        is_ai = player.name.startswith("AI")
+        is_ai = player.is_ai
         text_color = util.hex_to_rgb("#000000")
 
         while run:

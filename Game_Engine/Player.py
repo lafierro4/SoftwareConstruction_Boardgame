@@ -22,11 +22,12 @@
 import pygame
 
 class Player:
-    def __init__(self, name: str, token: pygame.Surface, space_size, button = None) -> None:
+    def __init__(self, name: str, token: pygame.Surface, space_size, button = None, is_ai:bool = False) -> None:
         self._name = name
         self._token = token
         self.button = button
         self._balance = 1500
+        self._is_ai:bool = is_ai
         self._assets = []
         self._position = 0
         self._last_roll = 0
@@ -149,6 +150,14 @@ class Player:
     @balance.setter
     def balance(self, balance):
         self._balance = balance
+
+    @property
+    def is_ai(self) -> bool:
+        return self._is_ai
+    
+    @is_ai.setter
+    def is_ai(self, value:bool):
+        self._is_ai = value
 
     @property
     def last_roll(self) -> int:

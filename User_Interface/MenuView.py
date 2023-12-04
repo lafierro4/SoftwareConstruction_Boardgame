@@ -190,8 +190,9 @@ def players_selection(SCREEN: pygame.Surface, is_ai: bool) -> tuple[int,int]:
                 if event.type == pygame.QUIT:
                     run = False
                 if event.type == pygame.MOUSEBUTTONDOWN:
+                    #number of human players, number of bots
                     if bot_1_button.check_clicked(mouse_pos):
-                        return (1, 1) #number of human players, number of bots
+                        return (1, 1) 
                     elif bot_2_button.check_clicked(mouse_pos):
                         return (1, 2)
                     elif bot_3_button.check_clicked(mouse_pos):
